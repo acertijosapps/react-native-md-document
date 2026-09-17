@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# logs
+*.log
+npm-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# Expo / Metro
+.expo/
+.expo-shared/
+web-build/
+
+# Generated native projects in the example (expo prebuild regenerates them)
+/example/ios/
+/example/android/
+
+# native build output (keeps lib source ios/ and android/ tracked)
+DerivedData/
+*.xcuserstate
+build/
