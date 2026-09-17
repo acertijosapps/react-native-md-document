@@ -1,11 +1,75 @@
-export const A_001_MD = `## TITULO PRIMERO
-### CAPITULO I
-### DE LOS DERECHOS HUMANOS Y SUS GARANTÍAS
-*Reformada su denominación, D.O.F. 10 de junio de 2011*
+export const A_001_MD = `<!--
+  A-001.md — Conversión de A-001.docx
+  Markdown puro no soporta centrado, colores ni celdas con fondo, por lo que la
+  fidelidad visual se logra con HTML embebido + estilos inline.
+  Fuente: Arial · Verde institucional: #006847 · Página: Carta (8.5 x 11 in), márgenes 0.87 in / 0.71 in
+  Renderiza correctamente en visores que permiten HTML inline (VS Code, Obsidian, Typora, MkDocs con md_in_html).
+  GitHub elimina el atributo style, por lo que ahí se pierden colores y centrado.
+-->
 
-| **Texto original D.O.F.** **05 de febrero de 1917** | **Art. 1º.-** En los Estados Unidos Mexicanos todo individuo gozará de las garantías que otorga esta Constitución, las cuales no podrán restringirse ni suspenderse, sino en los casos y con las condiciones que ella misma establece. |
-| --- | --- |
+<div style="font-family: Arial, Helvetica, sans-serif; max-width: 7.08in; margin: 0 auto; color: #000;">
 
-| **Texto vigente** **D.O.F.** **10 de junio de 2011** | **Art. 1º.-** En los Estados Unidos Mexicanos todas las personas gozarán de los derechos humanos reconocidos en esta Constitución y en los tratados internacionales de los que el Estado Mexicano sea parte, así como de las garantías para su protección, cuyo ejercicio no podrá restringirse ni suspenderse, salvo en los casos y bajo las condiciones que esta Constitución establece. *Párrafo reformado, D.O.F. 10 de junio de 2011* Las normas relativas a los derechos humanos se interpretarán de conformidad con esta Constitución y con los tratados internacionales de la materia favoreciendo en todo tiempo a las personas la protección más amplia. *Párrafo adicionado, D.O.F. 10 de junio de 2011* Todas las autoridades, en el ámbito de sus competencias, tienen la obligación de promover, respetar, proteger y garantizar los derechos humanos de conformidad con los principios de universalidad, interdependencia, indivisibilidad y progresividad. En consecuencia, el Estado deberá prevenir, investigar, sancionar y reparar las violaciones a los derechos humanos, en los términos que establezca la ley. *Párrafo adicionado, D.O.F. 10 de junio de 2011* Está prohibida la esclavitud en los Estados Unidos Mexicanos. Los esclavos del extranjero que entren al territorio nacional alcanzarán, por este solo hecho, su libertad y la protección de las leyes. *Párrafo adicionado, D.O.F. 14 de agosto de 2001* Queda prohibida toda discriminación motivada por origen étnico o nacional, el género, la edad, las discapacidades, la condición social, las condiciones de salud, la religión, las opiniones, las preferencias sexuales, el estado civil o cualquier otra que atente contra la dignidad humana y tenga por objeto anular o menoscabar los derechos y libertades de las personas. *Párrafo reformado, D.O.F. 04 de diciembre de 2006 y 10 de junio de 2011* *Artículo reformado D.O.F. 14 de Agosto de 2001, 04 de diciembre de 2006 y 10 de junio de 2011* |
-| --- | --- |
+<!-- Encabezado -->
+<div style="background: #006847; color: #FFFFFF; text-align: center; font-size: 18pt; text-transform: uppercase; padding: 8px 24px; margin: 0 -0.71in 8px -0.71in;">Constitucion Politica de los estados unidos mexicanos, 05 de febrero de 1917</div>
+
+<p style="text-align: center; font-size: 16pt; font-weight: bold; margin: 12px 0 8px;">TITULO PRIMERO</p>
+
+<p style="text-align: center; font-size: 14pt; font-weight: bold; margin: 8px 0;">CAPITULO I</p>
+
+<p style="text-align: center; font-size: 14pt; font-weight: bold; margin: 8px 0 0;">DE LOS DERECHOS HUMANOS Y SUS GARANTÍAS</p>
+
+<p style="text-align: center; font-size: 10pt; font-style: italic; color: #006847; margin: 0 0 12px;">Reformada su denominación, D.O.F. 10 de junio de 2011</p>
+
+<!-- Tabla 1: Texto original -->
+<table style="width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; border: 3px solid #FFFFFF; margin-bottom: 14px;">
+  <colgroup>
+    <col style="width: 21.34%;">
+    <col style="width: 78.66%;">
+  </colgroup>
+  <tr>
+    <td style="background: #006847; color: #FFFFFF; font-weight: bold; font-size: 12pt; text-align: center; vertical-align: middle; padding: 6px 4px; border: 3px solid #FFFFFF;">
+      <p style="margin: 0; text-align: center;">Texto original D.O.F.</p>
+      <p style="margin: 0; text-align: center;">05 de febrero de 1917</p>
+    </td>
+    <td style="font-size: 12pt; text-align: justify; vertical-align: top; padding: 6px 8px; border: 3px solid #FFFFFF;">
+      <p style="margin: 0; text-align: justify;"><strong>Art. 1º.-</strong> En los Estados Unidos Mexicanos todo individuo gozará de las garantías que otorga esta Constitución, las cuales no podrán restringirse ni suspenderse, sino en los casos y con las condiciones que ella misma establece.</p>
+    </td>
+  </tr>
+</table>
+
+<!-- Tabla 2: Texto vigente -->
+<table style="width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; border: 3px solid #FFFFFF; margin-bottom: 14px;">
+  <colgroup>
+    <col style="width: 21.34%;">
+    <col style="width: 78.66%;">
+  </colgroup>
+  <tr>
+    <td style="background: #006847; color: #FFFFFF; font-weight: bold; font-size: 12pt; text-align: center; vertical-align: middle; padding: 6px 4px; border: 3px solid #FFFFFF;">
+      <p style="margin: 0; text-align: center;">Texto vigente</p>
+      <p style="margin: 0; text-align: center;">D.O.F.</p>
+      <p style="margin: 0; text-align: center;">10 de junio de 2011</p>
+    </td>
+    <td style="font-size: 12pt; text-align: justify; vertical-align: top; padding: 6px 8px; border: 3px solid #FFFFFF;">
+      <p style="margin: 0; text-align: justify;"><strong>Art. 1º.-</strong> En los Estados Unidos Mexicanos todas las personas gozarán de los derechos humanos reconocidos en esta Constitución y en los tratados internacionales de los que el Estado Mexicano sea parte, así como de las garantías para su protección, cuyo ejercicio no podrá restringirse ni suspenderse, salvo en los casos y bajo las condiciones que esta Constitución establece.</p>
+      <p style="margin: 0 0 12pt; text-align: justify; font-size: 10pt; font-style: italic; color: #006847;">Párrafo reformado, D.O.F. 10 de junio de 2011</p>
+      <p style="margin: 0; text-align: justify;">Las normas relativas a los derechos humanos se interpretarán de conformidad con esta Constitución y con los tratados internacionales de la materia favoreciendo en todo tiempo a las personas la protección más amplia.</p>
+      <p style="margin: 0 0 12pt; text-align: justify; font-size: 10pt; font-style: italic; color: #006847;">Párrafo adicionado, D.O.F. 10 de junio de 2011</p>
+      <p style="margin: 0; text-align: justify;">Todas las autoridades, en el ámbito de sus competencias, tienen la obligación de promover, respetar, proteger y garantizar los derechos humanos de conformidad con los principios de universalidad, interdependencia, indivisibilidad y progresividad. En consecuencia, el Estado deberá prevenir, investigar, sancionar y reparar las violaciones a los derechos humanos, en los términos que establezca la ley.</p>
+      <p style="margin: 0 0 12pt; text-align: justify; font-size: 10pt; font-style: italic; color: #006847;">Párrafo adicionado, D.O.F. 10 de junio de 2011</p>
+      <p style="margin: 0; text-align: justify;">Está prohibida la esclavitud en los Estados Unidos Mexicanos. Los esclavos del extranjero que entren al territorio nacional alcanzarán, por este solo hecho, su libertad y la protección de las leyes.</p>
+      <p style="margin: 0 0 12pt; text-align: justify; font-size: 10pt; font-style: italic; color: #006847;">Párrafo adicionado, D.O.F. 14 de agosto de 2001</p>
+      <p style="margin: 0; text-align: justify;">Queda prohibida toda discriminación motivada por origen étnico o nacional, el género, la edad, las discapacidades, la condición social, las condiciones de salud, la religión, las opiniones, las preferencias sexuales, el estado civil o cualquier otra que atente contra la dignidad humana y tenga por objeto anular o menoscabar los derechos y libertades de las personas.</p>
+      <p style="margin: 0 0 12pt; text-align: justify; font-size: 10pt; font-style: italic; color: #006847;">Párrafo reformado, D.O.F. 04 de diciembre de 2006 y 10 de junio de 2011</p>
+      <p style="margin: 0; text-align: justify; font-size: 10pt; font-style: italic; color: #006847;">Artículo reformado D.O.F. 14 de Agosto de 2001, 04 de diciembre de 2006 y 10 de junio de 2011</p>
+    </td>
+  </tr>
+</table>
+
+<!-- Pie de página -->
+<div style="border-top: 2px solid #006847; margin-top: 24px; padding-top: 4px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; font-size: 9pt; color: #808080;">
+  <span>CPEUM</span>
+  <span style="background: #006847; color: #FFFFFF; font-size: 14pt; padding: 2px 14px;">1</span>
+</div>
+
+</div>
 `;

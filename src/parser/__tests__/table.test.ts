@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { parse } from '../index';
-import type { TableBlock } from '../types';
+import type { Inline, TableBlock, TableCell } from '../types';
 
 const SAMPLE = `# Doc
 
@@ -19,30 +19,42 @@ function firstTable(md: string): TableBlock {
     return table;
 }
 
+function cellInlines(cell: TableCell): Inline[] {
+    return cell.children.flatMap((b) => (b.type === 'paragraph' ? b.inlines : []));
+}
+
+function cellText(cell: TableCell): string {
+    return cellInlines(cell)
+        .map((t) => t.text)
+        .join('');
+}
+
 test('parses a GFM pipe table with header and rows', () => {
     const table = firstTable(SAMPLE);
+    assert.ok(table.header);
     assert.equal(table.header.cells.length, 2);
     assert.equal(table.rows.length, 1);
-    assert.equal(table.header.cells[0]!.inlines.map((t) => t.text).join(''), 'Original');
-    assert.equal(
-        table.rows[0]!.cells[1]!.inlines.map((t) => t.text).join(''),
-        'Texto B con énfasis',
-    );
+    assert.equal(cellText(table.header.cells[0]!), 'Original');
+    assert.equal(cellText(table.rows[0]!.cells[1]!), 'Texto B con énfasis');
 });
 
 test('table cells preserve inline styles', () => {
     const table = firstTable(SAMPLE);
-    assert.ok(table.header.cells[0]!.inlines.some((t) => t.style.bold && t.text === 'Original'));
-    const lastCell = table.rows[0]!.cells[1]!;
-    assert.ok(lastCell.inlines.some((t) => t.style.italic && t.text === 'énfasis'));
+    assert.ok(
+        cellInlines(table.header!.cells[0]!).some((t) => t.style.bold && t.text === 'Original'),
+    );
+    assert.ok(
+        cellInlines(table.rows[0]!.cells[1]!).some((t) => t.style.italic && t.text === 'énfasis'),
+    );
 });
 
 test('table cell offsets satisfy the keystone invariant', () => {
     const doc = parse(SAMPLE);
     const table = doc.blocks.find((b) => b.type === 'table') as TableBlock;
-    const cells = [table.header, ...table.rows].flatMap((r) => r.cells);
+    const rows = table.header ? [table.header, ...table.rows] : table.rows;
+    const cells = rows.flatMap((r) => r.cells);
     for (const cell of cells) {
-        for (const tok of cell.inlines) {
+        for (const tok of cellInlines(cell)) {
             assert.equal(tok.text, doc.plainText.slice(tok.start, tok.end));
         }
     }

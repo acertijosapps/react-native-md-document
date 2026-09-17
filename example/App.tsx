@@ -26,8 +26,10 @@ function makeSpeechEngine(): SpeechEngine {
 }
 const speechEngine = makeSpeechEngine();
 
-const REMOTE_URL = 'https://raw.githubusercontent.com/OWNER/REPO/main/a-001.md';
-const LOCAL_PATH = 'file:///ruta/en/el/dispositivo/a-001.md';
+const REMOTE_URL =
+    'https://firebasestorage.googleapis.com/v0/b/cpeum-294e1.appspot.com/o/cpeum%2FA-001.md?alt=media&token=6ff4c4fe-a304-4fbc-ab27-329482290217';
+const LOCAL_PATH =
+    'file:///Users/bryanoswaldogomezperez/Library/Developer/CoreSimulator/Devices/16A031E7-61B8-4277-A7F5-B132A2794F0A/data/Containers/Data/Application/6D03DA26-4D6E-4150-B74F-03F0D1FDE90C/Documents/a-001.md';
 
 type Origin = 'project' | 'url' | 'local';
 const ORIGINS: Origin[] = ['project', 'url', 'local'];

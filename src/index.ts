@@ -4,8 +4,11 @@ export * from './pagination';
 export { parse } from './parser';
 export type {
     Block,
+    BlockAlign,
     BlockquoteBlock,
+    BlockStyle,
     CodeBlock,
+    ContainerBlock,
     HeadingBlock,
     Inline,
     InlineStyle,

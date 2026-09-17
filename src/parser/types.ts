@@ -4,6 +4,9 @@ export interface InlineStyle {
     strikethrough?: boolean;
     code?: boolean;
     link?: string;
+    color?: string;
+    backgroundColor?: string;
+    fontSize?: number;
 }
 
 export interface TextToken {
@@ -16,20 +19,41 @@ export interface TextToken {
 
 export type Inline = TextToken;
 
+export type BlockAlign = 'left' | 'center' | 'right' | 'justify';
+
+export interface BlockStyle {
+    align?: BlockAlign;
+    color?: string;
+    background?: string;
+    fontSize?: number;
+    fontWeight?: 'bold';
+    fontStyle?: 'italic';
+    textTransform?: 'uppercase' | 'lowercase' | 'none';
+    marginBottom?: number;
+}
+
 export interface HeadingBlock {
     type: 'heading';
     level: 1 | 2 | 3 | 4 | 5 | 6;
     inlines: Inline[];
+    style?: BlockStyle;
 }
 
 export interface ParagraphBlock {
     type: 'paragraph';
     inlines: Inline[];
+    style?: BlockStyle;
 }
 
 export interface BlockquoteBlock {
     type: 'blockquote';
     children: Block[];
+}
+
+export interface ContainerBlock {
+    type: 'container';
+    children: Block[];
+    style?: BlockStyle;
 }
 
 export interface CodeBlock {
@@ -59,7 +83,8 @@ export interface ListBlock {
 export type TableAlign = 'left' | 'center' | 'right' | null;
 
 export interface TableCell {
-    inlines: Inline[];
+    children: Block[];
+    style?: BlockStyle;
 }
 
 export interface TableRow {
@@ -68,15 +93,18 @@ export interface TableRow {
 
 export interface TableBlock {
     type: 'table';
-    header: TableRow;
+    header?: TableRow;
     rows: TableRow[];
     align: TableAlign[];
+    colWidths?: (number | null)[];
+    style?: BlockStyle;
 }
 
 export type Block =
     | HeadingBlock
     | ParagraphBlock
     | BlockquoteBlock
+    | ContainerBlock
     | CodeBlock
     | ThematicBreak
     | ListBlock

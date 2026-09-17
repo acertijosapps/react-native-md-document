@@ -1,7 +1,14 @@
 import React from 'react';
-import { type LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
+import {
+    type LayoutChangeEvent,
+    StyleSheet,
+    Text,
+    type TextStyle,
+    View,
+    type ViewStyle,
+} from 'react-native';
 
-import type { Block, TableAlign, TableRow } from '../parser/types';
+import type { Block, BlockStyle, TableBlock } from '../parser/types';
 import InlineText from './InlineText';
 import { codeBlockStyle, codeTextStyle, type DocTheme, headingSize } from './theme';
 import type { ActiveRange, Highlight } from './types';
@@ -18,6 +25,47 @@ export interface BlockListProps extends RenderContext {
     onBlockLayout?: (index: number, height: number) => void;
 }
 
+function blockText(style: BlockStyle | undefined): TextStyle {
+    const out: TextStyle = {};
+    if (!style) {
+        return out;
+    }
+    if (style.align) {
+        out.textAlign = style.align;
+    }
+    if (style.color) {
+        out.color = style.color;
+    }
+    if (style.fontSize !== undefined) {
+        out.fontSize = style.fontSize;
+    }
+    if (style.fontWeight) {
+        out.fontWeight = '700';
+    }
+    if (style.fontStyle) {
+        out.fontStyle = style.fontStyle;
+    }
+    if (style.textTransform) {
+        out.textTransform = style.textTransform;
+    }
+    return out;
+}
+
+function blockBox(style: BlockStyle | undefined): ViewStyle {
+    const out: ViewStyle = {};
+    if (!style) {
+        return out;
+    }
+    if (style.background) {
+        out.backgroundColor = style.background;
+        out.padding = 8;
+    }
+    if (style.marginBottom !== undefined) {
+        out.marginBottom = style.marginBottom;
+    }
+    return out;
+}
+
 function renderChildren(
     blocks: Block[],
     ctx: RenderContext,
@@ -26,42 +74,46 @@ function renderChildren(
     return blocks.map((block, i) => renderBlock(block, ctx, `${keyPrefix}.${i}`));
 }
 
-function alignText(align: TableAlign): 'left' | 'center' | 'right' {
-    return align ?? 'left';
-}
-
-function renderTableRow(
-    row: TableRow,
-    align: TableAlign[],
-    ctx: RenderContext,
-    key: string,
-    isHeader: boolean,
-): React.JSX.Element {
+function renderTable(block: TableBlock, ctx: RenderContext, key: string): React.JSX.Element {
     const { theme } = ctx;
+    const rows = block.header ? [block.header, ...block.rows] : block.rows;
     return (
         <View
             key={key}
-            style={styles.tableRow}
+            style={[
+                { marginBottom: theme.blockSpacing },
+                styles.table,
+                { borderColor: theme.colors.rule },
+            ]}
         >
-            {row.cells.map((cell, ci) => (
-                <View
-                    key={`${key}.${ci}`}
-                    style={[styles.tableCell, { borderColor: theme.colors.rule }]}
-                >
-                    <InlineText
-                        inlines={cell.inlines}
-                        theme={theme}
-                        highlights={ctx.highlights}
-                        active={ctx.active}
-                        baseStyle={{
-                            fontSize: theme.fontSizes.body,
-                            fontWeight: isHeader ? '700' : '400',
-                            textAlign: alignText(align[ci] ?? null),
-                        }}
-                        onWordPress={ctx.onWordPress}
-                    />
-                </View>
-            ))}
+            {rows.map((row, ri) => {
+                const isHeader = block.header != null && ri === 0;
+                return (
+                    <View
+                        key={`${key}.r${ri}`}
+                        style={styles.tableRow}
+                    >
+                        {row.cells.map((cell, ci) => (
+                            <View
+                                key={`${key}.r${ri}.c${ci}`}
+                                style={[
+                                    styles.tableCell,
+                                    { borderColor: theme.colors.rule },
+                                    { flex: block.colWidths?.[ci] ?? 1 },
+                                    cell.style?.background
+                                        ? { backgroundColor: cell.style.background }
+                                        : null,
+                                    isHeader
+                                        ? { backgroundColor: theme.colors.codeBackground }
+                                        : null,
+                                ]}
+                            >
+                                {renderChildren(cell.children, ctx, `${key}.r${ri}.c${ci}`)}
+                            </View>
+                        ))}
+                    </View>
+                );
+            })}
         </View>
     );
 }
@@ -75,7 +127,7 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
             return (
                 <View
                     key={key}
-                    style={spacing}
+                    style={[spacing, blockBox(block.style)]}
                 >
                     <InlineText
                         inlines={block.inlines}
@@ -86,6 +138,7 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
                             fontSize: headingSize(theme, block.level),
                             fontWeight: '700',
                             color: theme.colors.heading,
+                            ...blockText(block.style),
                         }}
                         onWordPress={ctx.onWordPress}
                     />
@@ -96,16 +149,26 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
             return (
                 <View
                     key={key}
-                    style={spacing}
+                    style={[spacing, blockBox(block.style)]}
                 >
                     <InlineText
                         inlines={block.inlines}
                         theme={theme}
                         highlights={ctx.highlights}
                         active={ctx.active}
-                        baseStyle={{ fontSize: theme.fontSizes.body }}
+                        baseStyle={{ fontSize: theme.fontSizes.body, ...blockText(block.style) }}
                         onWordPress={ctx.onWordPress}
                     />
+                </View>
+            );
+
+        case 'container':
+            return (
+                <View
+                    key={key}
+                    style={blockBox(block.style)}
+                >
+                    {renderChildren(block.children, ctx, key)}
                 </View>
             );
 
@@ -182,17 +245,7 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
             return <View key={key}>{renderChildren(block.children, ctx, key)}</View>;
 
         case 'table':
-            return (
-                <View
-                    key={key}
-                    style={[spacing, styles.table, { borderColor: theme.colors.rule }]}
-                >
-                    {renderTableRow(block.header, block.align, ctx, `${key}.h`, true)}
-                    {block.rows.map((row, ri) =>
-                        renderTableRow(row, block.align, ctx, `${key}.r${ri}`, false),
-                    )}
-                </View>
-            );
+            return renderTable(block, ctx, key);
 
         default:
             return <View key={key} />;
@@ -248,7 +301,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     tableCell: {
-        flex: 1,
         padding: 8,
         borderRightWidth: StyleSheet.hairlineWidth,
         borderBottomWidth: StyleSheet.hairlineWidth,

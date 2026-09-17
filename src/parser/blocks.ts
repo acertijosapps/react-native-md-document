@@ -76,10 +76,11 @@ function isTableStart(lines: string[], i: number): boolean {
 }
 
 function buildRow(cells: string[], width: number, ctx: ParseContext): TableRow {
-    const out = [];
+    const out: TableRow['cells'] = [];
     for (let c = 0; c < width; c++) {
         gap(ctx);
-        out.push({ inlines: parseInline(cells[c] ?? '', ctx) });
+        const inlines = parseInline(cells[c] ?? '', ctx);
+        out.push({ children: [{ type: 'paragraph', inlines }] });
     }
     return { cells: out };
 }

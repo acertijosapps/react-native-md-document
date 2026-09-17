@@ -62,6 +62,12 @@ function styleFor(style: InlineStyle, theme: DocTheme): TextStyle {
         out.fontFamily = theme.monoFontFamily;
         out.color = theme.colors.code;
     }
+    if (style.color) {
+        out.color = style.color;
+    }
+    if (style.fontSize !== undefined) {
+        out.fontSize = style.fontSize;
+    }
     return out;
 }
 

@@ -202,8 +202,14 @@ Encabezados ATX (`#`…`######`), párrafos, listas ordenadas/no-ordenadas (anid
 blockquote, code fence, regla horizontal, tablas GFM, y estilos en línea `**negrita**`,
 `*cursiva*`, `` `código` ``, `~~tachado~~`, `[enlace](url)`.
 
+**HTML embebido**: documentos con HTML inline (div/p/table/strong/span con `style`) se
+detectan y parsean como subconjunto HTML, honrando color, fondo, centrado, tamaño de fuente y
+anchos de columna. Útil para conversiones docx→HTML de alta fidelidad. Ver
+[`docs/architecture/09-html.md`](docs/architecture/09-html.md).
+
 **Límites (v1)**: sin imágenes ni enlaces de navegación; `matchDelim` usa el primer cierre
-(no left/right-flanking de CommonMark); un bloque más alto que la página ocupa su propia hoja.
+(no left/right-flanking de CommonMark); un bloque más alto que la página ocupa su propia hoja;
+el HTML es un subconjunto (sin `colspan`, imágenes ni CSS externo).
 
 ## API
 
