@@ -188,6 +188,12 @@ mock, o el tuyo.
 `useDocTheme(colorScheme, override)`, `lightTheme`, `darkTheme` y `mergeTheme` están
 exportados para teñir tu propio chrome con la misma resolución.
 
+**Documentos con color que se adaptan al tema**: un `.md` con HTML embebido que hardcodea
+colores no cambia en modo oscuro. Para que se adapte, el archivo usa **tokens** `var(--token)`
+(p. ej. `var(--accent)`, `var(--text)`, `var(--page-bg)`) que el visor resuelve contra la
+paleta activa. Es un sub-estándar del lado del archivo — ver
+[`docs/architecture/10-theme-tokens.md`](docs/architecture/10-theme-tokens.md).
+
 ## Gestos
 
 - **Swipe horizontal** → pasa de página (flip).

@@ -1,7 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {
+    initialWindowMetrics,
+    SafeAreaProvider,
+    SafeAreaView,
+} from 'react-native-safe-area-context';
 
 import type { DocColorScheme, DocumentSource, SpeechEngine } from '../src';
 import {
@@ -17,6 +22,11 @@ import { A_001_MD } from './aDoc';
 
 const store = createKeyValueHighlightStore(AsyncStorage);
 
+const BRAND_TOKENS = {
+    light: { accent: '#006847', 'on-accent': '#ffffff', 'accent-text': '#006847' },
+    dark: { accent: '#0f5c43', 'on-accent': '#ffffff', 'accent-text': '#4ecb96' },
+};
+
 function makeSpeechEngine(): SpeechEngine {
     try {
         return createNativeSpeechEngine();
@@ -27,7 +37,7 @@ function makeSpeechEngine(): SpeechEngine {
 const speechEngine = makeSpeechEngine();
 
 const REMOTE_URL =
-    'https://firebasestorage.googleapis.com/v0/b/cpeum-294e1.appspot.com/o/cpeum%2FA-001.md?alt=media&token=6ff4c4fe-a304-4fbc-ab27-329482290217';
+    'https://firebasestorage.googleapis.com/v0/b/cpeum-294e1.appspot.com/o/cpeum%2FA-002.md?alt=media&token=8452a8e2-fc14-4fe8-b133-d21f90ef083d';
 const LOCAL_PATH =
     'file:///Users/bryanoswaldogomezperez/Library/Developer/CoreSimulator/Devices/16A031E7-61B8-4277-A7F5-B132A2794F0A/data/Containers/Data/Application/6D03DA26-4D6E-4150-B74F-03F0D1FDE90C/Documents/a-001.md';
 
@@ -36,7 +46,11 @@ const ORIGINS: Origin[] = ['project', 'url', 'local'];
 const ORIGIN_LABEL: Record<Origin, string> = { project: 'Proyecto', url: 'URL', local: 'Local' };
 
 const SCHEME_CYCLE: DocColorScheme[] = ['auto', 'light', 'dark'];
-const SCHEME_LABEL: Record<DocColorScheme, string> = { auto: 'Auto', light: 'Claro', dark: 'Oscuro' };
+const SCHEME_LABEL: Record<DocColorScheme, string> = {
+    auto: 'Auto',
+    light: 'Claro',
+    dark: 'Oscuro',
+};
 
 function sourceFor(origin: Origin): DocumentSource {
     if (origin === 'url') {
@@ -51,7 +65,7 @@ function sourceFor(origin: Origin): DocumentSource {
 export default function App(): React.JSX.Element {
     const [scheme, setScheme] = useState<DocColorScheme>('auto');
     const [origin, setOrigin] = useState<Origin>('project');
-    const [page, setPage] = useState({ index: 0, count: 0 });
+    const [page, setPage] = useState({ index: 0, count: 0, startOffset: 0 });
 
     const { document, isLoading, error, reload } = useDocumentSource(sourceFor(origin));
     const { highlights, toggleWordAt } = useHighlights({
@@ -70,7 +84,7 @@ export default function App(): React.JSX.Element {
         } else if (tts.status === 'paused') {
             tts.resume();
         } else {
-            tts.play();
+            tts.play(page.startOffset);
         }
     };
     const speechLabel =
@@ -90,101 +104,112 @@ export default function App(): React.JSX.Element {
 
     return (
         <GestureHandlerRootView style={[styles.root, { backgroundColor: chrome.background }]}>
-            <SafeAreaView style={styles.root}>
-                <View style={styles.header}>
-                    <Text style={[styles.title, { color: chrome.title }]}>react-native-document</Text>
-                    <Pressable
-                        style={[styles.pill, { borderColor: chrome.border }]}
-                        onPress={handleToggleScheme}
-                    >
-                        <Text style={[styles.pillLabel, { color: chrome.title }]}>
-                            {SCHEME_LABEL[scheme]}
+            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                <SafeAreaView style={styles.root}>
+                    <View style={styles.header}>
+                        <Text style={[styles.title, { color: chrome.title }]}>
+                            react-native-document
                         </Text>
-                    </Pressable>
-                </View>
-
-                <View style={styles.controls}>
-                    <View style={styles.segment}>
-                        {ORIGINS.map((o) => {
-                            const activeOrigin = o === origin;
-                            return (
-                                <Pressable
-                                    key={o}
-                                    style={[
-                                        styles.segmentItem,
-                                        { borderColor: chrome.border },
-                                        activeOrigin && { backgroundColor: chrome.accent },
-                                    ]}
-                                    onPress={() => setOrigin(o)}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.segmentLabel,
-                                            { color: activeOrigin ? chrome.onAccent : chrome.meta },
-                                        ]}
-                                    >
-                                        {ORIGIN_LABEL[o]}
-                                    </Text>
-                                </Pressable>
-                            );
-                        })}
-                    </View>
-                    <View style={styles.speechControls}>
-                        <Text style={[styles.meta, { color: chrome.meta }]}>
-                            {page.count > 0 ? `Pág. ${page.index + 1}/${page.count}` : ''}
-                        </Text>
-                        {document ? (
-                            <Pressable
-                                style={[styles.pill, { borderColor: chrome.border }]}
-                                onPress={handleToggleSpeech}
-                            >
-                                <Text style={[styles.pillLabel, { color: chrome.title }]}>
-                                    {speechLabel}
-                                </Text>
-                            </Pressable>
-                        ) : null}
-                        {document && tts.status !== 'idle' ? (
-                            <Pressable
-                                style={[styles.pill, { borderColor: chrome.border }]}
-                                onPress={tts.stop}
-                            >
-                                <Text style={[styles.pillLabel, { color: chrome.title }]}>■</Text>
-                            </Pressable>
-                        ) : null}
-                    </View>
-                </View>
-
-                <View style={[styles.viewer, { backgroundColor: chrome.card }]}>
-                    {document ? (
-                        <DocumentViewer
-                            document={document}
-                            colorScheme={scheme}
-                            highlights={highlights}
-                            active={tts.activeRange}
-                            onWordPress={toggleWordAt}
-                            onPageChange={(index, count) => setPage({ index, count })}
-                        />
-                    ) : (
-                        <View style={styles.status}>
-                            <Text style={[styles.statusText, { color: chrome.meta }]}>
-                                {isLoading
-                                    ? 'Cargando…'
-                                    : (error?.message ?? 'Sin documento')}
+                        <Pressable
+                            style={[styles.pill, { borderColor: chrome.border }]}
+                            onPress={handleToggleScheme}
+                        >
+                            <Text style={[styles.pillLabel, { color: chrome.title }]}>
+                                {SCHEME_LABEL[scheme]}
                             </Text>
-                            {error ? (
+                        </Pressable>
+                    </View>
+
+                    <View style={styles.controls}>
+                        <View style={styles.segment}>
+                            {ORIGINS.map((o) => {
+                                const activeOrigin = o === origin;
+                                return (
+                                    <Pressable
+                                        key={o}
+                                        style={[
+                                            styles.segmentItem,
+                                            { borderColor: chrome.border },
+                                            activeOrigin && { backgroundColor: chrome.accent },
+                                        ]}
+                                        onPress={() => setOrigin(o)}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.segmentLabel,
+                                                {
+                                                    color: activeOrigin
+                                                        ? chrome.onAccent
+                                                        : chrome.meta,
+                                                },
+                                            ]}
+                                        >
+                                            {ORIGIN_LABEL[o]}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                        <View style={styles.speechControls}>
+                            <Text style={[styles.meta, { color: chrome.meta }]}>
+                                {page.count > 0 ? `Pág. ${page.index + 1}/${page.count}` : ''}
+                            </Text>
+                            {document ? (
                                 <Pressable
                                     style={[styles.pill, { borderColor: chrome.border }]}
-                                    onPress={reload}
+                                    onPress={handleToggleSpeech}
                                 >
                                     <Text style={[styles.pillLabel, { color: chrome.title }]}>
-                                        Reintentar
+                                        {speechLabel}
+                                    </Text>
+                                </Pressable>
+                            ) : null}
+                            {document && tts.status !== 'idle' ? (
+                                <Pressable
+                                    style={[styles.pill, { borderColor: chrome.border }]}
+                                    onPress={tts.stop}
+                                >
+                                    <Text style={[styles.pillLabel, { color: chrome.title }]}>
+                                        ■
                                     </Text>
                                 </Pressable>
                             ) : null}
                         </View>
-                    )}
-                </View>
-            </SafeAreaView>
+                    </View>
+
+                    <View style={[styles.viewer, { backgroundColor: chrome.card }]}>
+                        {document ? (
+                            <DocumentViewer
+                                document={document}
+                                colorScheme={scheme}
+                                colorTokens={BRAND_TOKENS}
+                                highlights={highlights}
+                                active={tts.activeRange}
+                                onWordPress={toggleWordAt}
+                                onPageChange={(index, count, startOffset) =>
+                                    setPage({ index, count, startOffset })
+                                }
+                            />
+                        ) : (
+                            <View style={styles.status}>
+                                <Text style={[styles.statusText, { color: chrome.meta }]}>
+                                    {isLoading ? 'Cargando…' : (error?.message ?? 'Sin documento')}
+                                </Text>
+                                {error ? (
+                                    <Pressable
+                                        style={[styles.pill, { borderColor: chrome.border }]}
+                                        onPress={reload}
+                                    >
+                                        <Text style={[styles.pillLabel, { color: chrome.title }]}>
+                                            Reintentar
+                                        </Text>
+                                    </Pressable>
+                                ) : null}
+                            </View>
+                        )}
+                    </View>
+                </SafeAreaView>
+            </SafeAreaProvider>
         </GestureHandlerRootView>
     );
 }
