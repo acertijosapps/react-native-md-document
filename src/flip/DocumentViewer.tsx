@@ -6,11 +6,12 @@ import {
     MeasureLayer,
     PAGE_PADDING,
     pageForBlock,
+    pageStartOffset,
     topLevelBlockRanges,
     usePagination,
 } from '../pagination';
 import type { MDDocument } from '../parser/types';
-import type { ActiveRange, DocColorScheme, DocTheme, Highlight } from '../render';
+import type { ActiveRange, ColorTokens, DocColorScheme, DocTheme, Highlight } from '../render';
 import { useDocTheme } from '../render';
 import PageFlipper from './PageFlipper';
 
@@ -18,10 +19,11 @@ export interface DocumentViewerProps {
     document: MDDocument;
     theme?: Partial<DocTheme>;
     colorScheme?: DocColorScheme;
+    colorTokens?: ColorTokens;
     highlights?: Highlight[];
     active?: ActiveRange | null;
     onWordPress?: (offset: number) => void;
-    onPageChange?: (pageIndex: number, pageCount: number) => void;
+    onPageChange?: (pageIndex: number, pageCount: number, pageStartOffset: number) => void;
     maxScale?: number;
 }
 
@@ -29,6 +31,7 @@ function DocumentViewer({
     document,
     theme,
     colorScheme,
+    colorTokens,
     highlights,
     active,
     onWordPress,
@@ -37,9 +40,9 @@ function DocumentViewer({
 }: DocumentViewerProps): React.JSX.Element {
     const [size, setSize] = useState({ width: 0, height: 0 });
     const [pageIndex, setPageIndex] = useState(0);
-    const resolvedTheme = useDocTheme(colorScheme, theme);
+    const resolvedTheme = useDocTheme(colorScheme, theme, colorTokens);
     const contentHeight = size.height - PAGE_PADDING * 2;
-    const pagination = usePagination(document.blocks.length, contentHeight);
+    const pagination = usePagination(document.blocks.length, contentHeight, document);
 
     const onPageChangeRef = useRef(onPageChange);
     useEffect(() => {
@@ -53,13 +56,14 @@ function DocumentViewer({
     const pageCount = pagination.pages.length;
     const safeIndex = Math.min(pageIndex, Math.max(0, pageCount - 1));
 
+    const blockRanges = useMemo(() => topLevelBlockRanges(document.blocks), [document]);
+
     useEffect(() => {
         if (pagination.isMeasured) {
-            onPageChangeRef.current?.(safeIndex, pageCount);
+            const startOffset = pageStartOffset(pagination.pages, blockRanges, safeIndex);
+            onPageChangeRef.current?.(safeIndex, pageCount, startOffset);
         }
-    }, [safeIndex, pageCount, pagination.isMeasured]);
-
-    const blockRanges = useMemo(() => topLevelBlockRanges(document.blocks), [document]);
+    }, [safeIndex, pageCount, pagination.isMeasured, pagination.pages, blockRanges]);
 
     const activeStart = active?.start ?? -1;
     useEffect(() => {

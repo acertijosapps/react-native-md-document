@@ -27,6 +27,11 @@ export interface DocTheme {
     indent: number;
     fontFamily?: string;
     monoFontFamily?: string;
+    /**
+     * Tokens de color específicos del documento/marca para el modo activo
+     * (p. ej. `accent`). Los provee el consumidor; la librería no los inventa.
+     */
+    tokens?: Record<string, string>;
 }
 
 export type DocColorScheme = 'light' | 'dark' | 'auto';
@@ -90,6 +95,35 @@ export function mergeTheme(override?: Partial<DocTheme>, base: DocTheme = lightT
         colors: { ...base.colors, ...override.colors },
         fontSizes: { ...base.fontSizes, ...override.fontSizes },
     };
+}
+
+const BASE_TOKENS: Record<string, keyof DocTheme['colors']> = {
+    'page-bg': 'pageBackground',
+    bg: 'pageBackground',
+    background: 'pageBackground',
+    text: 'text',
+    fg: 'text',
+    heading: 'heading',
+    rule: 'rule',
+    link: 'link',
+    code: 'code',
+    highlight: 'highlight',
+};
+
+export function resolveThemeColor(value: string | undefined, theme: DocTheme): string | undefined {
+    if (!value) {
+        return value;
+    }
+    const m = /^var\(\s*--([\w-]+)\s*\)$/i.exec(value.trim());
+    if (!m) {
+        return value;
+    }
+    const name = m[1]!.toLowerCase();
+    const baseKey = BASE_TOKENS[name];
+    if (baseKey) {
+        return theme.colors[baseKey];
+    }
+    return theme.tokens?.[name];
 }
 
 export function headingSize(theme: DocTheme, level: number): number {

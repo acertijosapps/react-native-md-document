@@ -10,7 +10,13 @@ import {
 
 import type { Block, BlockStyle, TableBlock } from '../parser/types';
 import InlineText from './InlineText';
-import { codeBlockStyle, codeTextStyle, type DocTheme, headingSize } from './theme';
+import {
+    codeBlockStyle,
+    codeTextStyle,
+    type DocTheme,
+    headingSize,
+    resolveThemeColor,
+} from './theme';
 import type { ActiveRange, Highlight } from './types';
 
 export interface RenderContext {
@@ -25,7 +31,7 @@ export interface BlockListProps extends RenderContext {
     onBlockLayout?: (index: number, height: number) => void;
 }
 
-function blockText(style: BlockStyle | undefined): TextStyle {
+function blockText(style: BlockStyle | undefined, theme: DocTheme): TextStyle {
     const out: TextStyle = {};
     if (!style) {
         return out;
@@ -34,7 +40,7 @@ function blockText(style: BlockStyle | undefined): TextStyle {
         out.textAlign = style.align;
     }
     if (style.color) {
-        out.color = style.color;
+        out.color = resolveThemeColor(style.color, theme);
     }
     if (style.fontSize !== undefined) {
         out.fontSize = style.fontSize;
@@ -51,17 +57,27 @@ function blockText(style: BlockStyle | undefined): TextStyle {
     return out;
 }
 
-function blockBox(style: BlockStyle | undefined): ViewStyle {
+function blockBox(style: BlockStyle | undefined, theme: DocTheme): ViewStyle {
     const out: ViewStyle = {};
     if (!style) {
         return out;
     }
     if (style.background) {
-        out.backgroundColor = style.background;
+        out.backgroundColor = resolveThemeColor(style.background, theme);
         out.padding = 8;
     }
     if (style.marginBottom !== undefined) {
         out.marginBottom = style.marginBottom;
+    }
+    if (style.marginTop !== undefined) {
+        out.marginTop = style.marginTop;
+    }
+    if (style.paddingTop !== undefined) {
+        out.paddingTop = style.paddingTop;
+    }
+    if (style.borderTopWidth !== undefined) {
+        out.borderTopWidth = style.borderTopWidth;
+        out.borderTopColor = resolveThemeColor(style.borderTopColor, theme) ?? theme.colors.rule;
     }
     return out;
 }
@@ -101,7 +117,12 @@ function renderTable(block: TableBlock, ctx: RenderContext, key: string): React.
                                     { borderColor: theme.colors.rule },
                                     { flex: block.colWidths?.[ci] ?? 1 },
                                     cell.style?.background
-                                        ? { backgroundColor: cell.style.background }
+                                        ? {
+                                              backgroundColor: resolveThemeColor(
+                                                  cell.style.background,
+                                                  theme,
+                                              ),
+                                          }
                                         : null,
                                     isHeader
                                         ? { backgroundColor: theme.colors.codeBackground }
@@ -127,7 +148,7 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
             return (
                 <View
                     key={key}
-                    style={[spacing, blockBox(block.style)]}
+                    style={[spacing, blockBox(block.style, theme)]}
                 >
                     <InlineText
                         inlines={block.inlines}
@@ -138,7 +159,7 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
                             fontSize: headingSize(theme, block.level),
                             fontWeight: '700',
                             color: theme.colors.heading,
-                            ...blockText(block.style),
+                            ...blockText(block.style, theme),
                         }}
                         onWordPress={ctx.onWordPress}
                     />
@@ -149,14 +170,17 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
             return (
                 <View
                     key={key}
-                    style={[spacing, blockBox(block.style)]}
+                    style={[spacing, blockBox(block.style, theme)]}
                 >
                     <InlineText
                         inlines={block.inlines}
                         theme={theme}
                         highlights={ctx.highlights}
                         active={ctx.active}
-                        baseStyle={{ fontSize: theme.fontSizes.body, ...blockText(block.style) }}
+                        baseStyle={{
+                            fontSize: theme.fontSizes.body,
+                            ...blockText(block.style, theme),
+                        }}
                         onWordPress={ctx.onWordPress}
                     />
                 </View>
@@ -166,7 +190,7 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
             return (
                 <View
                     key={key}
-                    style={blockBox(block.style)}
+                    style={blockBox(block.style, theme)}
                 >
                     {renderChildren(block.children, ctx, key)}
                 </View>

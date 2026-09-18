@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, type TextStyle } from 'react-native';
 
 import type { Inline, InlineStyle } from '../parser/types';
-import type { DocTheme } from './theme';
+import { type DocTheme, resolveThemeColor } from './theme';
 import type { ActiveRange, Highlight } from './types';
 
 export interface InlineTextProps {
@@ -63,7 +63,7 @@ function styleFor(style: InlineStyle, theme: DocTheme): TextStyle {
         out.color = theme.colors.code;
     }
     if (style.color) {
-        out.color = style.color;
+        out.color = resolveThemeColor(style.color, theme);
     }
     if (style.fontSize !== undefined) {
         out.fontSize = style.fontSize;
@@ -87,7 +87,7 @@ function backgroundFor(
             }
         }
     }
-    return undefined;
+    return resolveThemeColor(piece.style.backgroundColor, theme);
 }
 
 function InlineText({

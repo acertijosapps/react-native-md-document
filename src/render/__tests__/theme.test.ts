@@ -1,7 +1,24 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { darkTheme, lightTheme, mergeTheme, themeForScheme } from '../theme';
+import { darkTheme, lightTheme, mergeTheme, resolveThemeColor, themeForScheme } from '../theme';
+
+test('resolveThemeColor maps base tokens to the active palette', () => {
+    assert.equal(resolveThemeColor('var(--page-bg)', darkTheme), darkTheme.colors.pageBackground);
+    assert.equal(resolveThemeColor('var(--text)', darkTheme), darkTheme.colors.text);
+    assert.equal(resolveThemeColor('var(--heading)', lightTheme), lightTheme.colors.heading);
+});
+
+test('resolveThemeColor uses consumer tokens for non-base names', () => {
+    const themed = { ...darkTheme, tokens: { accent: '#0f5c43' } };
+    assert.equal(resolveThemeColor('var(--accent)', themed), '#0f5c43');
+});
+
+test('resolveThemeColor leaves literals untouched and omits unknown tokens', () => {
+    assert.equal(resolveThemeColor('#006847', darkTheme), '#006847');
+    assert.equal(resolveThemeColor('var(--accent)', darkTheme), undefined);
+    assert.equal(resolveThemeColor(undefined, darkTheme), undefined);
+});
 
 test('light and dark palettes differ', () => {
     assert.notEqual(lightTheme.colors.pageBackground, darkTheme.colors.pageBackground);

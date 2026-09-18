@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
 
 import type { MDDocument } from '../parser/types';
-import type { ActiveRange, DocColorScheme, DocTheme, Highlight } from '../render';
+import type { ActiveRange, ColorTokens, DocColorScheme, DocTheme, Highlight } from '../render';
 import { useDocTheme } from '../render';
 import { PAGE_PADDING } from './constants';
 import MeasureLayer from './MeasureLayer';
@@ -14,6 +14,7 @@ export interface PaginatedDocumentProps {
     pageIndex: number;
     theme?: Partial<DocTheme>;
     colorScheme?: DocColorScheme;
+    colorTokens?: ColorTokens;
     highlights?: Highlight[];
     active?: ActiveRange | null;
     onWordPress?: (offset: number) => void;
@@ -25,15 +26,16 @@ function PaginatedDocument({
     pageIndex,
     theme,
     colorScheme,
+    colorTokens,
     highlights,
     active,
     onWordPress,
     onPagesChange,
 }: PaginatedDocumentProps): React.JSX.Element {
     const [size, setSize] = useState({ width: 0, height: 0 });
-    const resolvedTheme = useDocTheme(colorScheme, theme);
+    const resolvedTheme = useDocTheme(colorScheme, theme, colorTokens);
     const contentHeight = size.height - PAGE_PADDING * 2;
-    const pagination = usePagination(document.blocks.length, contentHeight);
+    const pagination = usePagination(document.blocks.length, contentHeight, document);
 
     const onPagesChangeRef = useRef(onPagesChange);
     useEffect(() => {

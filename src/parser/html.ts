@@ -112,6 +112,13 @@ function blockStyle(style: Record<string, string>): BlockStyle | undefined {
     const align = style['text-align'];
     if (align === 'left' || align === 'center' || align === 'right' || align === 'justify') {
         s.align = align;
+    } else {
+        const justify = style['justify-content'];
+        if (justify === 'flex-end' || justify === 'right' || justify === 'end') {
+            s.align = 'right';
+        } else if (justify === 'center') {
+            s.align = 'center';
+        }
     }
     if (style.color) {
         s.color = style.color;
@@ -133,6 +140,25 @@ function blockStyle(style: Record<string, string>): BlockStyle | undefined {
     const tt = style['text-transform'];
     if (tt === 'uppercase' || tt === 'lowercase' || tt === 'none') {
         s.textTransform = tt;
+    }
+    const marginTop = toNumber(style['margin-top']);
+    if (marginTop !== undefined) {
+        s.marginTop = marginTop;
+    }
+    const paddingTop = toNumber(style['padding-top']);
+    if (paddingTop !== undefined) {
+        s.paddingTop = paddingTop;
+    }
+    const borderTop = style['border-top'];
+    if (borderTop) {
+        const width = toNumber(borderTop);
+        const color = /var\(\s*--[\w-]+\s*\)|#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl)\([^)]*\)/.exec(
+            borderTop,
+        );
+        s.borderTopWidth = width !== undefined && width > 0 ? width : 1;
+        if (color) {
+            s.borderTopColor = color[0];
+        }
     }
     return Object.keys(s).length > 0 ? s : undefined;
 }
@@ -387,7 +413,12 @@ function blocksFrom(nodes: HtmlNode[], ctx: ParseContext, inherit?: BlockStyle):
                 const own = blockStyle(node.style);
                 const childInherit = textInherit(mergeStyle(inherit, own));
                 const children = blocksFrom(node.children, ctx, childInherit);
-                const hasBox = own?.background !== undefined || own?.marginBottom !== undefined;
+                const hasBox =
+                    own?.background !== undefined ||
+                    own?.marginBottom !== undefined ||
+                    own?.marginTop !== undefined ||
+                    own?.paddingTop !== undefined ||
+                    own?.borderTopWidth !== undefined;
                 if (hasBox) {
                     blocks.push({ type: 'container', children, style: own });
                 } else {

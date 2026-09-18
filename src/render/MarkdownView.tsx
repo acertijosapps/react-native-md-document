@@ -5,12 +5,14 @@ import type { MDDocument } from '../parser/types';
 import BlockList from './BlockList';
 import type { DocColorScheme, DocTheme } from './theme';
 import type { ActiveRange, Highlight } from './types';
+import type { ColorTokens } from './useDocTheme';
 import { useDocTheme } from './useDocTheme';
 
 export interface MarkdownViewProps {
     document: MDDocument;
     theme?: Partial<DocTheme>;
     colorScheme?: DocColorScheme;
+    colorTokens?: ColorTokens;
     highlights?: Highlight[];
     active?: ActiveRange | null;
     contentContainerStyle?: ViewStyle;
@@ -21,12 +23,13 @@ function MarkdownView({
     document,
     theme,
     colorScheme,
+    colorTokens,
     highlights,
     active,
     contentContainerStyle,
     onWordPress,
 }: MarkdownViewProps): React.JSX.Element {
-    const resolvedTheme = useDocTheme(colorScheme, theme);
+    const resolvedTheme = useDocTheme(colorScheme, theme, colorTokens);
     return (
         <ScrollView contentContainerStyle={[styles.content, contentContainerStyle]}>
             <BlockList

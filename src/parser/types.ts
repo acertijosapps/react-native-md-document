@@ -30,6 +30,10 @@ export interface BlockStyle {
     fontStyle?: 'italic';
     textTransform?: 'uppercase' | 'lowercase' | 'none';
     marginBottom?: number;
+    marginTop?: number;
+    paddingTop?: number;
+    borderTopWidth?: number;
+    borderTopColor?: string;
 }
 
 export interface HeadingBlock {
