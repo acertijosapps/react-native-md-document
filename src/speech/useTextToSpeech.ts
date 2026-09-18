@@ -17,7 +17,7 @@ export interface UseTextToSpeech {
     activeRange: ActiveRange | null;
     index: number;
     count: number;
-    play: (fromIndex?: number) => void;
+    play: (fromOffset?: number) => void;
     pause: () => void;
     resume: () => void;
     stop: () => void;
@@ -43,6 +43,10 @@ export function useTextToSpeech({
     const [activeRange, setActiveRange] = useState<ActiveRange | null>(null);
     const [index, setIndex] = useState(0);
     const indexRef = useRef(0);
+    const statusRef = useRef<SpeechStatus>('idle');
+    useEffect(() => {
+        statusRef.current = status;
+    }, [status]);
 
     const speakAt = useCallback((i: number) => {
         const utts = uttRef.current;
@@ -73,21 +77,45 @@ export function useTextToSpeech({
         );
     }, []);
 
+    const rate = options?.rate;
+    useEffect(() => {
+        if (statusRef.current === 'speaking') {
+            speakAt(indexRef.current);
+        }
+    }, [rate, speakAt]);
+
     const play = useCallback(
-        (fromIndex = 0) => {
+        (fromOffset?: number) => {
             engineRef.current.stop();
-            speakAt(fromIndex);
+            const utts = uttRef.current;
+            let start = 0;
+            if (fromOffset !== undefined && fromOffset > 0) {
+                const found = utts.findIndex((u) => u.end > fromOffset);
+                start = found < 0 ? 0 : found;
+            }
+            speakAt(start);
         },
         [speakAt],
     );
 
     const pause = useCallback(() => {
-        engineRef.current.stop();
+        const current = engineRef.current;
+        if (current.pause) {
+            current.pause();
+        } else {
+            current.stop();
+        }
         setStatus('paused');
     }, []);
 
     const resume = useCallback(() => {
-        speakAt(indexRef.current);
+        const current = engineRef.current;
+        if (current.resume) {
+            current.resume();
+            setStatus('speaking');
+        } else {
+            speakAt(indexRef.current);
+        }
     }, [speakAt]);
 
     const stop = useCallback(() => {

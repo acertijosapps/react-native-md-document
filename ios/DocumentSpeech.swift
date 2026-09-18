@@ -38,7 +38,9 @@ class DocumentSpeech: RCTEventEmitter, AVSpeechSynthesizerDelegate {
             utterance.voice = selected
         }
         if let rate = options["rate"] as? NSNumber {
-            utterance.rate = rate.floatValue
+            let multiplier = rate.floatValue
+            let scaled = AVSpeechUtteranceDefaultSpeechRate + (multiplier - 1.0) * 0.1
+            utterance.rate = min(AVSpeechUtteranceMaximumSpeechRate, max(AVSpeechUtteranceMinimumSpeechRate, scaled))
         }
         if let pitch = options["pitch"] as? NSNumber {
             utterance.pitchMultiplier = pitch.floatValue
@@ -50,6 +52,16 @@ class DocumentSpeech: RCTEventEmitter, AVSpeechSynthesizerDelegate {
     @objc(stop)
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
+    }
+
+    @objc(pause)
+    func pause() {
+        synthesizer.pauseSpeaking(at: .word)
+    }
+
+    @objc(resume)
+    func resume() {
+        synthesizer.continueSpeaking()
     }
 
     func speechSynthesizer(

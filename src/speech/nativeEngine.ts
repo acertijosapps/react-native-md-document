@@ -5,6 +5,8 @@ import type { SpeechEngine } from './types';
 interface NativeDocumentSpeech {
     speak(text: string, options: Record<string, unknown>): void;
     stop(): void;
+    pause?(): void;
+    resume?(): void;
     addListener(event: string): void;
     removeListeners(count: number): void;
 }
@@ -53,6 +55,12 @@ export function createNativeSpeechEngine(): SpeechEngine {
         stop() {
             clear();
             native.stop();
+        },
+        pause() {
+            native.pause?.();
+        },
+        resume() {
+            native.resume?.();
         },
     };
 }

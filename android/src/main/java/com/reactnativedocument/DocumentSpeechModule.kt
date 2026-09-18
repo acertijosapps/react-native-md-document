@@ -17,6 +17,9 @@ class DocumentSpeechModule(reactContext: ReactApplicationContext) :
     private val utteranceId = "rnd-utterance"
     private var ready = false
     private var tts: TextToSpeech? = null
+    private var currentText: String = ""
+    private var spokenChars: Int = 0
+    private var baseOffset: Int = 0
 
     init {
         tts = TextToSpeech(reactContext) { status ->
@@ -26,8 +29,9 @@ class DocumentSpeechModule(reactContext: ReactApplicationContext) :
             override fun onStart(id: String?) {}
 
             override fun onRangeStart(id: String?, start: Int, end: Int, frame: Int) {
+                spokenChars = baseOffset + start
                 val body = Arguments.createMap()
-                body.putInt("charIndex", start)
+                body.putInt("charIndex", baseOffset + start)
                 body.putInt("charLength", end - start)
                 emit("DocumentSpeech.boundary", body)
             }
@@ -65,6 +69,9 @@ class DocumentSpeechModule(reactContext: ReactApplicationContext) :
         if (options.hasKey("pitch")) {
             engine.setPitch(options.getDouble("pitch").toFloat())
         }
+        currentText = text
+        baseOffset = 0
+        spokenChars = 0
         engine.stop()
         val params = Bundle()
         params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
@@ -74,6 +81,25 @@ class DocumentSpeechModule(reactContext: ReactApplicationContext) :
     @ReactMethod
     fun stop() {
         tts?.stop()
+        baseOffset = 0
+        spokenChars = 0
+    }
+
+    @ReactMethod
+    fun pause() {
+        tts?.stop()
+    }
+
+    @ReactMethod
+    fun resume() {
+        val engine = tts ?: return
+        if (spokenChars <= 0 || spokenChars >= currentText.length) {
+            return
+        }
+        baseOffset = spokenChars
+        val params = Bundle()
+        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+        engine.speak(currentText.substring(spokenChars), TextToSpeech.QUEUE_FLUSH, params, utteranceId)
     }
 
     @ReactMethod

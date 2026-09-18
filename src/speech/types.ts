@@ -16,6 +16,8 @@ export interface SpeechHandlers {
 export interface SpeechEngine {
     speak(text: string, handlers: SpeechHandlers, options?: SpeechOptions): void;
     stop(): void;
+    pause?(): void;
+    resume?(): void;
 }
 
 export interface SpeechUtterance {
