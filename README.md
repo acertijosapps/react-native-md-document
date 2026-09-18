@@ -7,14 +7,17 @@ storage, el origen del documento y el motor de voz son inyectables.
 
 ## Features
 
-- **Render Markdown**: encabezados, párrafos, listas, blockquote, code, `hr`, estilos en
-  línea (negrita, cursiva, código, tachado, enlaces) y **tablas** GFM.
+- **Render Markdown** + **HTML embebido**: encabezados, párrafos, listas, blockquote, code,
+  `hr`, estilos en línea (negrita, cursiva, código, tachado, enlaces), **tablas** y HTML con
+  estilos inline (color, fondo, centrado, tamaños, anchos de columna).
 - **Paso de hoja** animado (Reanimated + Gesture Handler), un gesto = una página.
 - **Zoom** por pinch + arrastre, compuesto con el flip y el tap.
 - **Subrayado** por palabra, **persistente entre sesiones** (storage inyectable).
-- **Text-to-speech** con resaltado de la palabra hablada, incluso dentro de tablas.
-- **Tema claro/oscuro** (`auto` sigue el SO) y tokens de tema personalizables.
+- **Text-to-speech** con resaltado de la palabra hablada (incluso en tablas), pausa/reanudar,
+  velocidad, y auto-avance de página siguiendo la lectura.
+- **Tema claro/oscuro** (`auto` sigue el SO) con tokens de color adaptables por tema.
 - **Orígenes**: URL remota, ruta local del dispositivo, ruta del proyecto.
+- **Orientación** vertical y horizontal (re-pagina al rotar).
 
 ## Instalación
 
@@ -44,7 +47,8 @@ export default function App() {
 }
 ```
 
-Para el **text-to-speech nativo**, el módulo `DocumentSpeech` se autoenlaza:
+Para el **text-to-speech nativo**, el módulo `DocumentSpeech` se autoenlaza como cualquier
+paquete RN:
 
 ```sh
 cd ios && pod install    # iOS
@@ -63,28 +67,34 @@ export function Viewer() {
 }
 ```
 
+`DocumentViewer` mide el contenido, lo pagina al tamaño del viewport y habilita flip + zoom.
+`parse(source)` devuelve un `MDDocument` inmutable con `plainText` (la proyección de texto que
+usan highlight y TTS).
+
 ## Orígenes del documento
 
-`useDocumentSource` acepta las tres formas de origen:
+`useDocumentSource` cubre los tres orígenes:
 
 ```tsx
 import { DocumentViewer, useDocumentSource } from 'react-native-document';
 
 function Screen() {
     // Proyecto (bundled): string o { markdown }
-    const a = useDocumentSource({ markdown: MD_STRING });
+    const { document, isLoading, error, reload } = useDocumentSource({ markdown: MD_STRING });
     // URL remota: fetch integrado
-    const b = useDocumentSource({ uri: 'https://example.com/doc.md' });
+    // useDocumentSource({ uri: 'https://example.com/doc.md' })
     // Ruta local del dispositivo
-    const c = useDocumentSource({ uri: 'file:///…/doc.md' });
+    // useDocumentSource({ uri: 'file:///…/doc.md' })
 
-    const { document, isLoading, error, reload } = a;
     if (!document) {
-        return null; // isLoading / error disponibles
+        return null; // isLoading / error / reload disponibles
     }
     return <DocumentViewer document={document} />;
 }
 ```
+
+Detección de string: con `http(s)://`, `file:`, `content:`, `asset:` o que empiece con `/` se
+trata como URI; cualquier otro string es Markdown crudo.
 
 Para orígenes que `fetch` no cubre (asset del bundle, `file://` en Android) se inyecta un
 lector — la librería **no fuerza** `expo-file-system` ni `expo-asset`:
@@ -98,40 +108,33 @@ useDocumentSource(
 );
 ```
 
-Un string sin esquema se trata como Markdown crudo; con `http(s)://`, `file:`, `content:`,
-`asset:` o que empiece con `/`, como URI.
-
 ## Subrayado persistente
 
 ```tsx
-import {
-    DocumentViewer,
-    createKeyValueHighlightStore,
-    useHighlights,
-} from 'react-native-document';
+import { DocumentViewer, createKeyValueHighlightStore, useHighlights } from 'react-native-document';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const store = createKeyValueHighlightStore(AsyncStorage); // sirve para AsyncStorage/MMKV
 
 function Screen({ document }) {
-    const { highlights, toggleWordAt } = useHighlights({
+    const { highlights, toggleWordAt, remove, clear, isLoaded } = useHighlights({
         docId: 'doc-1',
         plainText: document.plainText,
-        store,
+        store, // sin store: solo en memoria
     });
     return (
         <DocumentViewer
             document={document}
             highlights={highlights}
-            onWordPress={toggleWordAt}
+            onWordPress={toggleWordAt} // toca una palabra para subrayar / quitar
         />
     );
 }
 ```
 
-El subrayado se guarda como `{ id, start, end, color? }` en el espacio de offsets de la
-proyección del documento. Como el documento es **inmutable**, ese espacio es estable entre
-sesiones, tamaños de pantalla y re-render. Sin store, los subrayados viven solo en memoria.
+Cada subrayado es `{ id, start, end, color? }` en el espacio de offsets de la proyección. Como
+el documento es **inmutable**, ese espacio es estable entre sesiones, tamaños de pantalla y
+re-render. `createMemoryHighlightStore()` sirve para tests/demo.
 
 ## Text-to-speech
 
@@ -143,8 +146,8 @@ import {
     useTextToSpeech,
 } from 'react-native-document';
 
-// Motor nativo propio (AVSpeechSynthesizer / android TextToSpeech).
-// Cae al mock si el módulo nativo no está enlazado.
+// Motor nativo propio (iOS AVSpeechSynthesizer / Android TextToSpeech).
+// Cae al mock (por timer, sin audio) si el módulo nativo no está enlazado.
 function makeEngine() {
     try {
         return createNativeSpeechEngine();
@@ -155,95 +158,153 @@ function makeEngine() {
 const engine = makeEngine();
 
 function Screen({ document }) {
-    const tts = useTextToSpeech({ plainText: document.plainText, engine });
+    const [pageStart, setPageStart] = React.useState(0);
+    const tts = useTextToSpeech({
+        plainText: document.plainText,
+        engine,
+        options: { rate: 1 }, // multiplicador de velocidad
+    });
+
+    const onPress = () => {
+        if (tts.status === 'speaking') tts.pause();
+        else if (tts.status === 'paused') tts.resume();
+        else tts.play(pageStart); // arranca en el inicio de la página actual
+    };
+
     return (
         <>
             <DocumentViewer
                 document={document}
-                active={tts.activeRange}
+                active={tts.activeRange} // resalta la palabra hablada y auto-avanza de página
+                onPageChange={(index, count, startOffset) => setPageStart(startOffset)}
             />
             <Button
-                title={tts.status === 'speaking' ? 'Pausa' : 'Leer'}
-                onPress={() => (tts.status === 'speaking' ? tts.pause() : tts.play())}
+                title={tts.status === 'speaking' ? 'Pausa' : tts.status === 'paused' ? 'Reanudar' : 'Leer'}
+                onPress={onPress}
             />
         </>
     );
 }
 ```
 
-`activeRange` es la palabra hablada en offsets de proyección; el visor la resalta con
-`colors.activeWord`. El motor de voz es inyectable (`SpeechEngine`): usa el nativo propio, el
-mock, o el tuyo.
+- `useTextToSpeech` devuelve `{ status, activeRange, index, count, play, pause, resume, stop }`.
+  `status` es `'idle' | 'speaking' | 'paused'`.
+- `play(fromOffset?)` arranca en la utterance que cubre ese offset (usa `pageStartOffset` de
+  `onPageChange` para leer desde la página actual). `pause`/`resume` conservan la posición
+  (nativo: mitad de utterance). `stop` reinicia.
+- `activeRange` es la palabra hablada en offsets de proyección; el visor la resalta con
+  `colors.activeWord` y **auto-avanza de página** para seguir la lectura.
+- `options.rate` es un multiplicador (1 = normal). Android lo aplica directo; iOS usa una
+  curva sobre la velocidad por defecto de `AVSpeechUtterance`.
+- El motor es inyectable (`SpeechEngine`): nativo propio, mock, o el tuyo
+  (`speak`, `stop`, opcional `pause`/`resume`).
 
-## Tema claro / oscuro
+## Tema y tokens de color
 
 ```tsx
 <DocumentViewer
     document={doc}
     colorScheme="auto" // 'auto' (default, sigue el SO) | 'light' | 'dark'
-    theme={{ colors: { link: '#c026d3' } }} // override parcial sobre la base resuelta
+    theme={{ colors: { link: '#c026d3' } }} // override parcial sobre la paleta del modo activo
 />
 ```
 
-`useDocTheme(colorScheme, override)`, `lightTheme`, `darkTheme` y `mergeTheme` están
-exportados para teñir tu propio chrome con la misma resolución.
+`useDocTheme(colorScheme, override, colorTokens?)`, `useColorMode(colorScheme)`, `lightTheme`,
+`darkTheme` y `mergeTheme` están exportados para teñir tu propio chrome con la misma resolución.
 
-**Documentos con color que se adaptan al tema**: un `.md` con HTML embebido que hardcodea
-colores no cambia en modo oscuro. Para que se adapte, el archivo usa **tokens** `var(--token)`
-(p. ej. `var(--accent)`, `var(--text)`, `var(--page-bg)`) que el visor resuelve contra la
-paleta activa. Es un sub-estándar del lado del archivo — ver
-[`docs/architecture/10-theme-tokens.md`](docs/architecture/10-theme-tokens.md).
+### Documentos con color que se adaptan al tema
+
+Un `.md` con HTML embebido que hardcodea colores (`background:#FFFFFF`, `color:#006847`) **no
+cambia** en modo oscuro. El sub-estándar: el archivo usa **tokens** `var(--token)` en vez de
+literales, y el visor los resuelve contra la paleta activa. Mezclar literales y tokens es
+válido (retrocompatible).
+
+```html
+<div style="background: var(--accent); color: var(--on-accent);">…barra…</div>
+<p style="color: var(--accent-text); font-style: italic;">…nota…</p>
+<p style="color: var(--text);">…cuerpo…</p>
+```
+
+Dos clases de token:
+
+- **Base — los define la librería** (su propia paleta light/dark, sin adivinar):
+  `--page-bg`, `--text`, `--heading`, `--rule`, `--link`, `--code`, `--highlight`.
+- **Marca/custom — los provee el consumidor** por prop `colorTokens`, con valores por modo:
+
+```tsx
+<DocumentViewer
+    document={doc}
+    colorScheme="auto"
+    colorTokens={{
+        light: { accent: '#006847', 'on-accent': '#ffffff', 'accent-text': '#006847' },
+        dark: { accent: '#0f5c43', 'on-accent': '#ffffff', 'accent-text': '#4ecb96' },
+    }}
+/>
+```
+
+Un token que no es base **ni** está en `colorTokens` del modo activo se **omite** (la librería
+no inventa colores). El fondo de página y el texto salen siempre de la paleta base, así que un
+documento sin tokens de marca ya respeta claro/oscuro.
 
 ## Gestos
 
-- **Swipe horizontal** → pasa de página (flip).
-- **Pinch** → zoom; con zoom, **arrastrar** mueve la página (el flip se bloquea).
+- **Swipe horizontal** → pasa de página (flip). Un gesto = una página.
+- **Pinch** → zoom; con zoom, **arrastrar** mueve la página (el flip se bloquea). Prop
+  `maxScale` (default 3).
 - **Tap** en una palabra → `onWordPress(offset)`.
 
-`activeOffsetX`/`Y` hacen que el pan solo capture arrastre real, dejando pasar el tap.
+El pan solo captura arrastre real (umbral), dejando pasar el tap.
 
-## Markdown soportado
+## Orientación
 
-Encabezados ATX (`#`…`######`), párrafos, listas ordenadas/no-ordenadas (anidadas),
-blockquote, code fence, regla horizontal, tablas GFM, y estilos en línea `**negrita**`,
-`*cursiva*`, `` `código` ``, `~~tachado~~`, `[enlace](url)`.
+El visor es *size-driven*: al rotar, mide el nuevo tamaño y **re-pagina** solo. Habilitá
+landscape en la config nativa de tu app (Expo: `app.json` `orientation: "default"`; RN puro:
+`UISupportedInterfaceOrientations` en iOS y `android:screenOrientation` en Android). En
+horizontal, usá `SafeAreaProvider` de `react-native-safe-area-context` con
+`initialMetrics={initialWindowMetrics}` para insets correctos desde el primer frame.
 
-**HTML embebido**: documentos con HTML inline (div/p/table/strong/span con `style`) se
-detectan y parsean como subconjunto HTML, honrando color, fondo, centrado, tamaño de fuente y
-anchos de columna. Útil para conversiones docx→HTML de alta fidelidad. Ver
-[`docs/architecture/09-html.md`](docs/architecture/09-html.md).
+## Markdown y HTML soportado
 
-**Límites (v1)**: sin imágenes ni enlaces de navegación; `matchDelim` usa el primer cierre
-(no left/right-flanking de CommonMark); un bloque más alto que la página ocupa su propia hoja;
-el HTML es un subconjunto (sin `colspan`, imágenes ni CSS externo).
+**Markdown**: encabezados ATX (`#`…`######`), párrafos, listas ordenadas/no-ordenadas
+(anidadas), blockquote, code fence, regla horizontal, tablas GFM, y estilos en línea
+`**negrita**`, `*cursiva*`, `` `código` ``, `~~tachado~~`, `[enlace](url)`.
+
+**HTML embebido**: si el documento empieza con HTML de bloque, se parsea como subconjunto HTML
+(`div`, `p`, `h1..6`, `table`/`tr`/`td`/`col`, `strong`, `em`, `span`, …) honrando el atributo
+`style`: `text-align`, `color`, `background`, `font-size`, `font-weight`, `font-style`,
+`text-transform`, `border-top`, `margin-top`, anchos de `<col>`. Útil para conversiones
+docx→HTML de alta fidelidad. Los colores adaptables usan tokens (ver arriba).
+
+**Límites (v1)**: sin imágenes ni enlaces de navegación; un bloque más alto que la página
+scrollea dentro de su hoja; el HTML es un subconjunto (sin `colspan`, imágenes ni CSS externo).
 
 ## API
 
 | Export | Tipo | Descripción |
 |---|---|---|
-| `parse(source)` | fn | Markdown → `MDDocument` (con `plainText`) |
+| `parse(source)` | fn | Markdown/HTML → `MDDocument` (con `plainText`) |
 | `DocumentViewer` | componente | Visor completo: paginación + flip + zoom |
 | `MarkdownView` | componente | Render simple con scroll (sin paginar) |
-| `useDocumentSource(source, opts?)` | hook | Carga URL / local / proyecto |
-| `useHighlights(params)` | hook | Estado + persistencia de subrayados |
-| `createKeyValueHighlightStore(kv)` | fn | Store sobre `{getItem,setItem}` |
-| `createMemoryHighlightStore()` | fn | Store en memoria (tests/demo) |
-| `useTextToSpeech(params)` | hook | Reproducción + `activeRange` |
-| `createNativeSpeechEngine()` | fn | Motor de voz nativo propio |
-| `createMockSpeechEngine(opts?)` | fn | Motor de voz por timer (sin audio) |
-| `useDocTheme` · `lightTheme` · `darkTheme` · `mergeTheme` | tema | Resolución y paletas |
+| `PaginatedDocument` | componente | Paginación controlada (`pageIndex`) sin flip |
+| `useDocumentSource(source, opts?)` | hook | Carga URL / local / proyecto (`readUri` inyectable) |
+| `useHighlights(params)` | hook | `{ highlights, toggleWordAt, add, remove, clear, isLoaded }` |
+| `createKeyValueHighlightStore(kv)` · `createMemoryHighlightStore()` | fn | Stores de subrayado |
+| `useTextToSpeech(params)` | hook | `{ status, activeRange, play, pause, resume, stop, index, count }` |
+| `createNativeSpeechEngine()` · `createMockSpeechEngine(opts?)` | fn | Motores de voz |
+| `useDocTheme` · `useColorMode` · `lightTheme` · `darkTheme` · `mergeTheme` · `resolveThemeColor` | tema | Resolución, paletas y tokens |
 
-**Props de `DocumentViewer`**: `document`, `colorScheme?`, `theme?`, `highlights?`,
-`active?`, `onWordPress?`, `onPageChange?(index, count)`, `maxScale?`.
+**Props de `DocumentViewer`**: `document`, `colorScheme?`, `theme?`, `colorTokens?`,
+`highlights?`, `active?`, `onWordPress?(offset)`, `onPageChange?(index, count, pageStartOffset)`,
+`maxScale?`.
 
 ## Arquitectura
 
 La pieza clave es la **proyección** `MDDocument.plainText`: la concatenación de todo el texto
 visible en orden de lectura. Cada token de texto lleva `[start, end)` en ese espacio, con la
-invariante `token.text === plainText.slice(start, end)`. Sobre ella se apoyan highlight y TTS.
-Detalle por módulo en [`docs/architecture/`](docs/architecture/).
+invariante `token.text === plainText.slice(start, end)`. Sobre ella se apoyan el subrayado
+persistente y el resaltado de TTS.
 
-Módulos: `parser`, `render`, `pagination`, `flip`, `highlights`, `source`, `speech`.
+Módulos internos: `parser`, `render`, `pagination`, `flip`, `highlights`, `source`, `speech`.
 
 ## Desarrollo
 
@@ -254,7 +315,8 @@ npm run lint
 npm run format
 ```
 
-El ejemplo ejecutable está en [`example/`](example/) (Expo).
+El ejemplo ejecutable está en `example/` (Expo): ejercita orígenes, tema claro/oscuro con
+tokens, subrayado persistente y TTS.
 
 ## Licencia
 
