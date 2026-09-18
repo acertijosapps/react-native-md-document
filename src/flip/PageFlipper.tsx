@@ -59,7 +59,8 @@ function PageFlipper({
     const hasNext = pageIndex < pages.length - 1;
 
     const pageBlocksAt = useCallback(
-        (index: number): Block[] => (pages[index] ?? []).map((i) => blocks[i]!),
+        (index: number): Block[] =>
+            (pages[index] ?? []).map((i) => blocks[i]).filter((b): b is Block => b !== undefined),
         [pages, blocks],
     );
 

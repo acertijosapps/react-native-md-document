@@ -8,7 +8,11 @@ export interface Pagination {
     onBlockLayout: (index: number, height: number) => void;
 }
 
-export function usePagination(blockCount: number, pageHeight: number): Pagination {
+export function usePagination(
+    blockCount: number,
+    pageHeight: number,
+    resetKey?: unknown,
+): Pagination {
     const heightsRef = useRef<number[]>([]);
     const [pages, setPages] = useState<number[][]>([]);
     const [isMeasured, setIsMeasured] = useState(false);
@@ -17,7 +21,7 @@ export function usePagination(blockCount: number, pageHeight: number): Paginatio
         heightsRef.current = [];
         setPages([]);
         setIsMeasured(false);
-    }, [blockCount, pageHeight]);
+    }, [blockCount, pageHeight, resetKey]);
 
     const onBlockLayout = useCallback(
         (index: number, height: number) => {
