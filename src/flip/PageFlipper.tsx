@@ -222,6 +222,7 @@ function PageFlipper({
                             padding={PAGE_PADDING}
                             highlights={highlights}
                             active={active}
+                            scrollable={false}
                         />
                     </Animated.View>
                 ) : null}
@@ -238,6 +239,7 @@ function PageFlipper({
                             padding={PAGE_PADDING}
                             highlights={highlights}
                             active={active}
+                            scrollable={false}
                         />
                     </Animated.View>
                 ) : null}

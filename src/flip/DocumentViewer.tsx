@@ -1,7 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
 
-import { MeasureLayer, PAGE_PADDING, usePagination } from '../pagination';
+import {
+    blockIndexForOffset,
+    MeasureLayer,
+    PAGE_PADDING,
+    pageForBlock,
+    topLevelBlockRanges,
+    usePagination,
+} from '../pagination';
 import type { MDDocument } from '../parser/types';
 import type { ActiveRange, DocColorScheme, DocTheme, Highlight } from '../render';
 import { useDocTheme } from '../render';
@@ -51,6 +58,23 @@ function DocumentViewer({
             onPageChangeRef.current?.(safeIndex, pageCount);
         }
     }, [safeIndex, pageCount, pagination.isMeasured]);
+
+    const blockRanges = useMemo(() => topLevelBlockRanges(document.blocks), [document]);
+
+    const activeStart = active?.start ?? -1;
+    useEffect(() => {
+        if (!pagination.isMeasured || activeStart < 0) {
+            return;
+        }
+        const bi = blockIndexForOffset(blockRanges, activeStart);
+        if (bi < 0) {
+            return;
+        }
+        const target = pageForBlock(pagination.pages, bi);
+        if (target >= 0) {
+            setPageIndex((prev) => (prev === target ? prev : target));
+        }
+    }, [activeStart, pagination.isMeasured, pagination.pages, blockRanges]);
 
     const handleContainerLayout = (event: LayoutChangeEvent): void => {
         const { width, height } = event.nativeEvent.layout;

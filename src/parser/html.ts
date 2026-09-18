@@ -387,11 +387,12 @@ function blocksFrom(nodes: HtmlNode[], ctx: ParseContext, inherit?: BlockStyle):
                 const own = blockStyle(node.style);
                 const childInherit = textInherit(mergeStyle(inherit, own));
                 const children = blocksFrom(node.children, ctx, childInherit);
-                blocks.push(
-                    own
-                        ? { type: 'container', children, style: own }
-                        : { type: 'container', children },
-                );
+                const hasBox = own?.background !== undefined || own?.marginBottom !== undefined;
+                if (hasBox) {
+                    blocks.push({ type: 'container', children, style: own });
+                } else {
+                    blocks.push(...children);
+                }
                 break;
             }
             case 'table':

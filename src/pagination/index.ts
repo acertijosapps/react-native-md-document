@@ -1,6 +1,8 @@
 export { PAGE_PADDING } from './constants';
 export type { MeasureLayerProps } from './MeasureLayer';
 export { default as MeasureLayer } from './MeasureLayer';
+export type { OffsetRange } from './offsets';
+export { blockIndexForOffset, pageForBlock, topLevelBlockRanges } from './offsets';
 export type { PageProps } from './Page';
 export { default as Page } from './Page';
 export { paginate } from './paginate';

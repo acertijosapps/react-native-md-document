@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import type { Block } from '../parser/types';
 import type { ActiveRange, DocTheme, Highlight } from '../render';
@@ -14,6 +14,7 @@ export interface PageProps {
     highlights?: Highlight[];
     active?: ActiveRange | null;
     onWordPress?: (offset: number) => void;
+    scrollable?: boolean;
 }
 
 function Page({
@@ -25,24 +26,37 @@ function Page({
     highlights,
     active,
     onWordPress,
+    scrollable = true,
 }: PageProps): React.JSX.Element {
+    const content = (
+        <BlockList
+            blocks={blocks}
+            theme={theme}
+            highlights={highlights}
+            active={active}
+            onWordPress={onWordPress}
+        />
+    );
     return (
         <View
             style={{
                 width,
                 height,
-                padding,
                 backgroundColor: theme.colors.pageBackground,
                 overflow: 'hidden',
             }}
         >
-            <BlockList
-                blocks={blocks}
-                theme={theme}
-                highlights={highlights}
-                active={active}
-                onWordPress={onWordPress}
-            />
+            {scrollable ? (
+                <ScrollView
+                    contentContainerStyle={{ padding }}
+                    showsVerticalScrollIndicator={false}
+                    nestedScrollEnabled
+                >
+                    {content}
+                </ScrollView>
+            ) : (
+                <View style={{ padding }}>{content}</View>
+            )}
         </View>
     );
 }
