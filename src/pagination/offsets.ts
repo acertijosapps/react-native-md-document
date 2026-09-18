@@ -63,3 +63,22 @@ export function blockIndexForOffset(ranges: OffsetRange[], offset: number): numb
 export function pageForBlock(pages: number[][], blockIndex: number): number {
     return pages.findIndex((p) => p.includes(blockIndex));
 }
+
+export function pageStartOffset(
+    pages: number[][],
+    ranges: OffsetRange[],
+    pageIndex: number,
+): number {
+    const blocks = pages[pageIndex];
+    if (!blocks) {
+        return 0;
+    }
+    let min = Number.POSITIVE_INFINITY;
+    for (const bi of blocks) {
+        const r = ranges[bi];
+        if (r && r.start >= 0) {
+            min = Math.min(min, r.start);
+        }
+    }
+    return Number.isFinite(min) ? min : 0;
+}
