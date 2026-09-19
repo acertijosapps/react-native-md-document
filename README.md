@@ -1,4 +1,6 @@
-# react-native-document
+# react-native-md-document
+
+> npm: [`@acertijosapps/react-native-md-document`](https://www.npmjs.com/package/@acertijosapps/react-native-md-document)
 
 Visor de documentos **Markdown-como-PDF** para React Native: documento inmutable, con paso
 de hoja animado, zoom, subrayado persistente, text-to-speech con resaltado sincronizado y
@@ -12,7 +14,7 @@ estilos en línea, resaltado y adaptación de color por tema.
 
 | Claro | Oscuro |
 |---|---|
-| <img src="media/showcase-light.png" alt="Tema claro" width="300" /> | <img src="media/showcase-dark.png" alt="Tema oscuro" width="300" /> |
+| <img src="https://unpkg.com/@acertijosapps/react-native-md-document/media/showcase-light.png" alt="Tema claro" width="300" /> | <img src="https://unpkg.com/@acertijosapps/react-native-md-document/media/showcase-dark.png" alt="Tema oscuro" width="300" /> |
 
 ## Características
 
@@ -32,14 +34,14 @@ estilos en línea, resaltado y adaptación de color por tema.
 
 | Plataforma | Mínimo | Nota |
 |---|---|---|
-| **iOS** | 13.0 | Deployment target del módulo nativo (`react-native-document.podspec`). TTS con resaltado por palabra incluido. |
+| **iOS** | 13.0 | Deployment target del módulo nativo (`react-native-md-document.podspec`). TTS con resaltado por palabra incluido. |
 | **Android** | 7.0 (API 24) | `minSdkVersion` del módulo. El TTS habla en API 24+, pero el **resaltado por palabra** durante la lectura usa `onRangeStart`, que requiere **Android 8.0 (API 26)**. |
 | **React Native** | 0.76 | Probado con RN 0.76.5 / Expo SDK 52. |
 | **Peer deps** | `react-native-reanimated` ≥ 3.16 · `react-native-gesture-handler` ≥ 2.20 | Únicas dependencias visuales. |
 
 ### Android 16 KB (page size)
 
-**Compatible.** `react-native-document` **no incluye código nativo compilado**
+**Compatible.** `react-native-md-document` **no incluye código nativo compilado**
 (`.so`): el módulo `DocumentSpeech` es Kotlin puro y se compila al dex de la
 app. Al no aportar binarios, no hay librerías desalineadas de nuestra parte —
 la librería cumple el requisito de 16 KB de Android 15 (Google Play, `targetSdk
@@ -49,10 +51,10 @@ la librería cumple el requisito de 16 KB de Android 15 (Google Play, `targetSdk
 
 ```sh
 # npm
-npm install react-native-document react-native-gesture-handler react-native-reanimated
+npm install @acertijosapps/react-native-md-document react-native-gesture-handler react-native-reanimated
 
 # yarn
-yarn add react-native-document react-native-gesture-handler react-native-reanimated
+yarn add @acertijosapps/react-native-md-document react-native-gesture-handler react-native-reanimated
 ```
 
 `react-native-reanimated` requiere su plugin de Babel (último en la lista):
@@ -98,7 +100,7 @@ npx pod-install          # iOS (o: cd ios && pod install)
 ## Inicio rápido
 
 ```tsx
-import { DocumentViewer, parse } from 'react-native-document';
+import { DocumentViewer, parse } from '@acertijosapps/react-native-md-document';
 
 const doc = parse('# Hola\n\nUn documento **Markdown**.');
 
@@ -116,7 +118,7 @@ usan highlight y TTS).
 `useDocumentSource` cubre los tres orígenes:
 
 ```tsx
-import { DocumentViewer, useDocumentSource } from 'react-native-document';
+import { DocumentViewer, useDocumentSource } from '@acertijosapps/react-native-md-document';
 
 function Screen() {
     // Proyecto (bundled): string o { markdown }
@@ -151,7 +153,7 @@ useDocumentSource(
 ## Subrayado persistente
 
 ```tsx
-import { DocumentViewer, createKeyValueHighlightStore, useHighlights } from 'react-native-document';
+import { DocumentViewer, createKeyValueHighlightStore, useHighlights } from '@acertijosapps/react-native-md-document';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const store = createKeyValueHighlightStore(AsyncStorage); // sirve para AsyncStorage/MMKV
@@ -184,7 +186,7 @@ import {
     createNativeSpeechEngine,
     createMockSpeechEngine,
     useTextToSpeech,
-} from 'react-native-document';
+} from '@acertijosapps/react-native-md-document';
 
 // Motor nativo propio (iOS AVSpeechSynthesizer / Android TextToSpeech).
 // Cae al mock (por timer, sin audio) si el módulo nativo no está enlazado.
