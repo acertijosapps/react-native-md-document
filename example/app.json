@@ -11,6 +11,16 @@
         },
         "android": {
             "package": "com.example.rnddoc"
-        }
+        },
+        "plugins": [
+            [
+                "expo-build-properties",
+                {
+                    "android": {
+                        "kotlinVersion": "1.9.24"
+                    }
+                }
+            ]
+        ]
     }
 }

@@ -1,28 +1,29 @@
 {
-    "name": "react-native-document-example",
-    "version": "1.0.0",
-    "main": "index.ts",
-    "scripts": {
-        "start": "expo start",
-        "ios": "expo run:ios",
-        "android": "expo run:android"
-    },
-    "dependencies": {
-        "@react-native-async-storage/async-storage": "^2.1.0",
-        "react-native-document": "file:..",
-        "expo": "~52.0.0",
-        "expo-file-system": "~18.0.12",
-        "expo-status-bar": "~2.0.0",
-        "react": "18.3.1",
-        "react-native": "0.76.5",
-        "react-native-gesture-handler": "~2.20.2",
-        "react-native-reanimated": "~3.16.1",
-        "react-native-safe-area-context": "4.12.0"
-    },
-    "devDependencies": {
-        "@babel/core": "^7.25.0",
-        "@types/react": "~18.3.12",
-        "typescript": "^5.3.3"
-    },
-    "private": true
+  "name": "react-native-document-example",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo run:ios",
+    "android": "expo run:android"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "expo": "~52.0.0",
+    "expo-build-properties": "~0.13.3",
+    "expo-file-system": "~18.0.12",
+    "expo-status-bar": "~2.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.5",
+    "react-native-document": "file:..",
+    "react-native-gesture-handler": "~2.20.2",
+    "react-native-reanimated": "~3.16.1",
+    "react-native-safe-area-context": "4.12.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "@types/react": "~18.3.12",
+    "typescript": "^5.3.3"
+  },
+  "private": true
 }
