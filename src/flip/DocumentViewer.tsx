@@ -109,6 +109,7 @@ function DocumentViewer({
             ) : null}
             {hasSize && pagination.isMeasured ? (
                 <PageFlipper
+                    key={safeIndex}
                     blocks={document.blocks}
                     pages={pagination.pages}
                     pageIndex={safeIndex}

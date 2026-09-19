@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -75,7 +75,7 @@ function PageFlipper({
         [onFlip, pageIndex],
     );
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         progress.value = 0;
         scale.value = 1;
         savedScale.value = 1;
