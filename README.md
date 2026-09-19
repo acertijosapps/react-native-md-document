@@ -83,8 +83,6 @@ npx pod-install          # iOS (o: cd ios && pod install)
   tuyo. Instálalo **solo si** quieres persistir subrayados con esa opción; para
   subrayado en memoria usa `createMemoryHighlightStore()`, y sin subrayado no
   necesitas nada. Ver [Subrayado persistente](#subrayado-persistente).
-- **Lectura de archivos** (`file://`, asset del bundle): `expo-file-system` u
-  otro lector, inyectado por `readUri`. Ver [Orígenes del documento](#orígenes-del-documento).
 
 Únicas dependencias obligatorias: `react-native-reanimated` y
 `react-native-gesture-handler` (los peers).
