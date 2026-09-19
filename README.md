@@ -5,7 +5,16 @@ de hoja animado, zoom, subrayado persistente, text-to-speech con resaltado sincr
 tema claro/oscuro. Sin librerías de terceros para el contenido (parser y render propios); el
 storage, el origen del documento y el motor de voz son inyectables.
 
-## Features
+## Vista previa
+
+Documento de demostración (`example/`) en tema claro y oscuro: banner con tokens de marca,
+estilos en línea, resaltado y adaptación de color por tema.
+
+| Claro | Oscuro |
+|---|---|
+| <img src="media/showcase-light.png" alt="Tema claro" width="300" /> | <img src="media/showcase-dark.png" alt="Tema oscuro" width="300" /> |
+
+## Características
 
 - **Render Markdown** + **HTML embebido**: encabezados, párrafos, listas, blockquote, code,
   `hr`, estilos en línea (negrita, cursiva, código, tachado, enlaces), **tablas** y HTML con
@@ -19,12 +28,23 @@ storage, el origen del documento y el motor de voz son inyectables.
 - **Orígenes**: URL remota, ruta local del dispositivo, ruta del proyecto.
 - **Orientación** vertical y horizontal (re-pagina al rotar).
 
+## Requisitos
+
+| Plataforma | Mínimo | Nota |
+|---|---|---|
+| **iOS** | 13.0 | Deployment target del módulo nativo (`react-native-document.podspec`). TTS con resaltado por palabra incluido. |
+| **Android** | 7.0 (API 24) | `minSdkVersion` del módulo. El TTS habla en API 24+, pero el **resaltado por palabra** durante la lectura usa `onRangeStart`, que requiere **Android 8.0 (API 26)**. |
+| **React Native** | 0.76 | Probado con RN 0.76.5 / Expo SDK 52. |
+| **Peer deps** | `react-native-reanimated` ≥ 3.16 · `react-native-gesture-handler` ≥ 2.20 | Únicas dependencias visuales. |
+
 ## Instalación
 
 ```sh
-npm install react-native-document
-# peer dependencies
-npm install react-native-gesture-handler react-native-reanimated
+# npm
+npm install react-native-document react-native-gesture-handler react-native-reanimated
+
+# yarn
+yarn add react-native-document react-native-gesture-handler react-native-reanimated
 ```
 
 `react-native-reanimated` requiere su plugin de Babel (último en la lista):
@@ -51,11 +71,11 @@ Para el **text-to-speech nativo**, el módulo `DocumentSpeech` se autoenlaza com
 paquete RN:
 
 ```sh
-cd ios && pod install    # iOS
-# Android: autolinking por gradle
+npx pod-install          # iOS (o: cd ios && pod install)
+# Android: autolinking por gradle, sin pasos extra
 ```
 
-## Quick start
+## Inicio rápido
 
 ```tsx
 import { DocumentViewer, parse } from 'react-native-document';
@@ -293,9 +313,23 @@ scrollea dentro de su hoja; el HTML es un subconjunto (sin `colspan`, imágenes 
 | `createNativeSpeechEngine()` · `createMockSpeechEngine(opts?)` | fn | Motores de voz |
 | `useDocTheme` · `useColorMode` · `lightTheme` · `darkTheme` · `mergeTheme` · `resolveThemeColor` | tema | Resolución, paletas y tokens |
 
-**Props de `DocumentViewer`**: `document`, `colorScheme?`, `theme?`, `colorTokens?`,
-`highlights?`, `active?`, `onWordPress?(offset)`, `onPageChange?(index, count, pageStartOffset)`,
-`maxScale?`.
+### Props de `DocumentViewer`
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `document` | `MDDocument` | — (requerido) | Documento parseado con `parse(...)` |
+| `colorScheme?` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Tema; `auto` sigue el SO |
+| `theme?` | `Partial<DocTheme>` | paleta del modo | Override parcial de colores/tamaños |
+| `colorTokens?` | `{ light?: Record<string,string>; dark?: Record<string,string> }` | — | Tokens de marca por modo, para `var(--token)` |
+| `highlights?` | `Highlight[]` | `[]` | Subrayados a pintar (`{ id, start, end, color? }`) |
+| `active?` | `ActiveRange \| null` | `null` | Palabra hablada por el TTS; se resalta y auto-avanza de página |
+| `onWordPress?` | `(offset: number) => void` | — | Tap en una palabra (para subrayar/quitar) |
+| `onPageChange?` | `(pageIndex: number, pageCount: number, pageStartOffset: number) => void` | — | Notifica cambio de página |
+| `maxScale?` | `number` | `3` | Zoom máximo por pinch |
+
+`MarkdownView` y `PaginatedDocument` comparten `theme` / `colorScheme` / `colorTokens` /
+`highlights` / `active` / `onWordPress`; `PaginatedDocument` añade `pageIndex` y
+`onPagesChange?(count)`.
 
 ## Arquitectura
 
@@ -309,14 +343,28 @@ Módulos internos: `parser`, `render`, `pagination`, `flip`, `highlights`, `sour
 ## Desarrollo
 
 ```sh
+# npm
 npm test          # parser, paginación, highlights, source, speech, tema
 npm run typecheck
 npm run lint
 npm run format
+
+# yarn
+yarn test
+yarn typecheck
+yarn lint
+yarn format
 ```
 
 El ejemplo ejecutable está en `example/` (Expo): ejercita orígenes, tema claro/oscuro con
 tokens, subrayado persistente y TTS.
+
+```sh
+cd example
+yarn install          # o: npm install
+npx pod-install ios   # primera vez / tras cambiar deps nativas
+yarn ios              # o: yarn android  (o: npm run ios / npm run android)
+```
 
 ## Licencia
 
