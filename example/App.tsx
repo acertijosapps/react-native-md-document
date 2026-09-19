@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -18,7 +19,7 @@ import {
     useHighlights,
     useTextToSpeech,
 } from '../src';
-import { A_001_MD } from './aDoc';
+import { SHOWCASE_MD } from './showcase';
 
 const store = createKeyValueHighlightStore(AsyncStorage);
 
@@ -37,9 +38,28 @@ function makeSpeechEngine(): SpeechEngine {
 const speechEngine = makeSpeechEngine();
 
 const REMOTE_URL =
-    'https://firebasestorage.googleapis.com/v0/b/cpeum-294e1.appspot.com/o/cpeum%2FA-002.md?alt=media&token=8452a8e2-fc14-4fe8-b133-d21f90ef083d';
-const LOCAL_PATH =
-    'file:///Users/bryanoswaldogomezperez/Library/Developer/CoreSimulator/Devices/16A031E7-61B8-4277-A7F5-B132A2794F0A/data/Containers/Data/Application/6D03DA26-4D6E-4150-B74F-03F0D1FDE90C/Documents/a-001.md';
+    'https://firebasestorage.googleapis.com/v0/b/cpeum-294e1.appspot.com/o/test%2Fshowcase.md?alt=media&token=72c4432e-06db-4a60-9e22-aef5db8f9e07';
+
+const LOCAL_URI = `${FileSystem.documentDirectory}showcase.md`;
+
+const localReady = (async (): Promise<void> => {
+    const info = await FileSystem.getInfoAsync(LOCAL_URI);
+    if (!info.exists) {
+        await FileSystem.writeAsStringAsync(LOCAL_URI, SHOWCASE_MD);
+    }
+})();
+
+async function readUri(uri: string, headers?: Record<string, string>): Promise<string> {
+    if (uri.startsWith('file://')) {
+        await localReady;
+        return FileSystem.readAsStringAsync(uri);
+    }
+    const response = await fetch(uri, headers ? { headers } : undefined);
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status} al cargar ${uri}`);
+    }
+    return response.text();
+}
 
 type Origin = 'project' | 'url' | 'local';
 const ORIGINS: Origin[] = ['project', 'url', 'local'];
@@ -57,9 +77,9 @@ function sourceFor(origin: Origin): DocumentSource {
         return { uri: REMOTE_URL };
     }
     if (origin === 'local') {
-        return { uri: LOCAL_PATH };
+        return { uri: LOCAL_URI };
     }
-    return { markdown: A_001_MD };
+    return { markdown: SHOWCASE_MD };
 }
 
 export default function App(): React.JSX.Element {
@@ -67,9 +87,11 @@ export default function App(): React.JSX.Element {
     const [origin, setOrigin] = useState<Origin>('project');
     const [page, setPage] = useState({ index: 0, count: 0, startOffset: 0 });
 
-    const { document, isLoading, error, reload } = useDocumentSource(sourceFor(origin));
+    const { document, isLoading, error, reload } = useDocumentSource(sourceFor(origin), {
+        readUri,
+    });
     const { highlights, toggleWordAt } = useHighlights({
-        docId: `a-001:${origin}`,
+        docId: `demo:${origin}`,
         plainText: document?.plainText ?? '',
         store,
     });
