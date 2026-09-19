@@ -138,6 +138,29 @@ function Screen() {
 Detección de string: con `http(s)://`, `file:`, `content:`, `asset:` o que empiece con `/` se
 trata como URI; cualquier otro string es Markdown crudo.
 
+### Carga gestionada por el visor
+
+Si no quieres cablear el hook a mano, pasa `source` directo a `DocumentViewer`: carga solo y
+expone los estados de carga.
+
+```tsx
+<DocumentViewer
+    source={{ uri: 'https://example.com/doc.md' }}
+    onLoadComplete={(doc) => console.log('listo', doc.length)}
+    onLoadError={(err) => console.warn(err.message)}
+    renderLoading={() => <ActivityIndicator />}
+    renderError={(err, retry) => (
+        <View>
+            <Text>{err.message}</Text>
+            <Button title="Reintentar" onPress={retry} />
+        </View>
+    )}
+/>
+```
+
+Usa `document` (control total: highlights/TTS necesitan `document.plainText` antes de render) o
+`source` (el visor gestiona la carga). Los cuatro props anteriores solo aplican con `source`.
+
 Para orígenes que `fetch` no cubre (asset del bundle, `file://` en Android) se inyecta un
 lector — la librería **no fuerza** `expo-file-system` ni `expo-asset`:
 
@@ -339,7 +362,9 @@ scrollea dentro de su hoja; el HTML es un subconjunto (sin `colspan`, imágenes 
 
 | Prop | Tipo | Default | Descripción |
 |---|---|---|---|
-| `document` | `MDDocument` | — (requerido) | Documento parseado con `parse(...)` |
+| `document?` | `MDDocument` | — | Documento ya parseado con `parse(...)`. Requerido si no pasas `source` |
+| `source?` | `DocumentSource` | — | Origen a cargar internamente (`{ markdown }` / `{ uri }` / string). El visor gestiona la carga y expone los callbacks/render props de abajo |
+| `readUri?` | `ReadUri` | `fetch` | Lector inyectable para `source` con `uri` (p. ej. `expo-file-system` para `file://`) |
 | `colorScheme?` | `'auto' \| 'light' \| 'dark'` | `'auto'` | Tema; `auto` sigue el SO |
 | `theme?` | `Partial<DocTheme>` | paleta del modo | Override parcial de colores/tamaños |
 | `colorTokens?` | `{ light?: Record<string,string>; dark?: Record<string,string> }` | — | Tokens de marca por modo, para `var(--token)` |
@@ -348,6 +373,14 @@ scrollea dentro de su hoja; el HTML es un subconjunto (sin `colspan`, imágenes 
 | `onWordPress?` | `(offset: number) => void` | — | Tap en una palabra (para subrayar/quitar) |
 | `onPageChange?` | `(pageIndex: number, pageCount: number, pageStartOffset: number) => void` | — | Notifica cambio de página |
 | `maxScale?` | `number` | `3` | Zoom máximo por pinch |
+| `onLoadComplete?` | `(document: MDDocument) => void` | — | Se dispara cuando la carga del `source` termina con éxito |
+| `onLoadError?` | `(error: Error) => void` | — | Se dispara cuando la carga del `source` falla |
+| `renderLoading?` | `() => React.ReactNode` | — | Componente a mostrar mientras carga el `source` |
+| `renderError?` | `(error: Error, retry: () => void) => React.ReactNode` | — | Componente a mostrar si la carga falla; `retry` reintenta |
+
+Pasa **`document`** (ya parseado, control total de carga/highlights/TTS) **o** **`source`**
+(el visor carga solo y usa `onLoadComplete` / `onLoadError` / `renderLoading` / `renderError`).
+Los callbacks y render props solo aplican con `source`.
 
 `MarkdownView` y `PaginatedDocument` comparten `theme` / `colorScheme` / `colorTokens` /
 `highlights` / `active` / `onWordPress`; `PaginatedDocument` añade `pageIndex` y

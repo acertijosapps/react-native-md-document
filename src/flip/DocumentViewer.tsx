@@ -13,9 +13,29 @@ import {
 import type { MDDocument } from '../parser/types';
 import type { ActiveRange, ColorTokens, DocColorScheme, DocTheme, Highlight } from '../render';
 import { useDocTheme } from '../render';
+import type { DocumentSource, ReadUri } from '../source';
+import { useDocumentSource } from '../source';
 import PageFlipper from './PageFlipper';
 
 export interface DocumentViewerProps {
+    document?: MDDocument;
+    source?: DocumentSource;
+    readUri?: ReadUri;
+    theme?: Partial<DocTheme>;
+    colorScheme?: DocColorScheme;
+    colorTokens?: ColorTokens;
+    highlights?: Highlight[];
+    active?: ActiveRange | null;
+    onWordPress?: (offset: number) => void;
+    onPageChange?: (pageIndex: number, pageCount: number, pageStartOffset: number) => void;
+    maxScale?: number;
+    onLoadComplete?: (document: MDDocument) => void;
+    onLoadError?: (error: Error) => void;
+    renderLoading?: () => React.ReactNode;
+    renderError?: (error: Error, retry: () => void) => React.ReactNode;
+}
+
+interface ViewerCoreProps {
     document: MDDocument;
     theme?: Partial<DocTheme>;
     colorScheme?: DocColorScheme;
@@ -27,7 +47,7 @@ export interface DocumentViewerProps {
     maxScale?: number;
 }
 
-function DocumentViewer({
+function ViewerCore({
     document,
     theme,
     colorScheme,
@@ -37,7 +57,7 @@ function DocumentViewer({
     onWordPress,
     onPageChange,
     maxScale,
-}: DocumentViewerProps): React.JSX.Element {
+}: ViewerCoreProps): React.JSX.Element {
     const [size, setSize] = useState({ width: 0, height: 0 });
     const [pageIndex, setPageIndex] = useState(0);
     const resolvedTheme = useDocTheme(colorScheme, theme, colorTokens);
@@ -124,6 +144,79 @@ function DocumentViewer({
                 />
             ) : null}
         </View>
+    );
+}
+
+function SourcedDocumentViewer({
+    source,
+    readUri,
+    onLoadComplete,
+    onLoadError,
+    renderLoading,
+    renderError,
+    theme,
+    colorScheme,
+    colorTokens,
+    highlights,
+    active,
+    onWordPress,
+    onPageChange,
+    maxScale,
+}: DocumentViewerProps & { source: DocumentSource }): React.JSX.Element {
+    const { document, isLoading, error, reload } = useDocumentSource(source, {
+        readUri,
+        onLoadComplete,
+        onLoadError,
+    });
+
+    if (document) {
+        return (
+            <ViewerCore
+                document={document}
+                theme={theme}
+                colorScheme={colorScheme}
+                colorTokens={colorTokens}
+                highlights={highlights}
+                active={active}
+                onWordPress={onWordPress}
+                onPageChange={onPageChange}
+                maxScale={maxScale}
+            />
+        );
+    }
+    if (error) {
+        return <>{renderError ? renderError(error, reload) : null}</>;
+    }
+    if (isLoading) {
+        return <>{renderLoading ? renderLoading() : null}</>;
+    }
+    return <>{null}</>;
+}
+
+function DocumentViewer(props: DocumentViewerProps): React.JSX.Element {
+    if (props.source !== undefined) {
+        return (
+            <SourcedDocumentViewer
+                {...props}
+                source={props.source}
+            />
+        );
+    }
+    if (!props.document) {
+        return <>{null}</>;
+    }
+    return (
+        <ViewerCore
+            document={props.document}
+            theme={props.theme}
+            colorScheme={props.colorScheme}
+            colorTokens={props.colorTokens}
+            highlights={props.highlights}
+            active={props.active}
+            onWordPress={props.onWordPress}
+            onPageChange={props.onPageChange}
+            maxScale={props.maxScale}
+        />
     );
 }
 

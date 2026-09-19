@@ -9,6 +9,8 @@ export type ReadUri = (uri: string, headers?: Record<string, string>) => Promise
 
 export interface UseDocumentSourceOptions {
     readUri?: ReadUri;
+    onLoadComplete?: (document: MDDocument) => void;
+    onLoadError?: (error: Error) => void;
 }
 
 export interface DocumentSourceState {
@@ -36,13 +38,23 @@ export function useDocumentSource(
 
     const sourceRef = useRef(source);
     const readRef = useRef(options.readUri);
+    const onCompleteRef = useRef(options.onLoadComplete);
+    const onErrorRef = useRef(options.onLoadError);
     useEffect(() => {
         sourceRef.current = source;
         readRef.current = options.readUri;
+        onCompleteRef.current = options.onLoadComplete;
+        onErrorRef.current = options.onLoadError;
     });
 
     const mdContent = resolved.kind === 'markdown' ? (resolved.markdown ?? '') : null;
     const inlineDoc = useMemo(() => (mdContent === null ? null : parse(mdContent)), [mdContent]);
+
+    useEffect(() => {
+        if (inlineDoc) {
+            onCompleteRef.current?.(inlineDoc);
+        }
+    }, [inlineDoc]);
 
     const [nonce, setNonce] = useState(0);
     const reload = useCallback(() => setNonce((n) => n + 1), []);
@@ -67,7 +79,9 @@ export function useDocumentSource(
                 if (cancelled) {
                     return;
                 }
-                setRemote({ document: parse(markdown), markdown, isLoading: false, error: null });
+                const parsed = parse(markdown);
+                setRemote({ document: parsed, markdown, isLoading: false, error: null });
+                onCompleteRef.current?.(parsed);
             })
             .catch((err) => {
                 if (cancelled) {
@@ -75,6 +89,7 @@ export function useDocumentSource(
                 }
                 const error = err instanceof Error ? err : new Error(String(err));
                 setRemote({ document: null, markdown: null, isLoading: false, error });
+                onErrorRef.current?.(error);
             });
         return () => {
             cancelled = true;
