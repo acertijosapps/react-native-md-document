@@ -37,6 +37,20 @@ estilos en línea, resaltado y adaptación de color por tema.
 | **React Native** | 0.76 | Probado con RN 0.76.5 / Expo SDK 52. |
 | **Peer deps** | `react-native-reanimated` ≥ 3.16 · `react-native-gesture-handler` ≥ 2.20 | Únicas dependencias visuales. |
 
+### Android 16 KB (page size)
+
+**Compatible.** `react-native-document` **no incluye código nativo compilado**
+(`.so`): el módulo `DocumentSpeech` es Kotlin puro y se compila al dex de la
+app. Al no aportar binarios, no hay librerías desalineadas de nuestra parte —
+la librería cumple el requisito de 16 KB de Android 15 (Google Play, `targetSdk
+35`) por construcción, en cualquier tamaño de página.
+
+Si tu app aún ve `.so` a 4 KB, provienen de **otros** paquetes con binarios
+precompilados (React Native, Hermes, Reanimated, Gesture Handler, Fresco,
+Expo). Se alinean actualizando esas dependencias a versiones recompiladas con
+16 KB (React Native ≥ 0.77 / Expo SDK ≥ 53); `react-native-document` funciona
+con ese stack sin cambios.
+
 ## Instalación
 
 ```sh
