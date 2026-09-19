@@ -1,0 +1,12 @@
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
+
+# build artifacts
+build/
+android/build/
+android/.gradle/
+android/.cxx/
+ios/build/
+**/*.xcuserstate
+.DS_Store

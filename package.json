@@ -1,9 +1,29 @@
 {
-  "name": "react-native-document",
+  "name": "@acertijosapps/react-native-md-document",
   "version": "0.0.1",
   "description": "Immutable Markdown-as-document viewer for React Native: page-flip, zoom, text-to-speech and persistent highlights.",
   "main": "src/index.ts",
   "types": "src/index.ts",
+  "react-native": "src/index.ts",
+  "files": [
+    "src",
+    "!src/**/__tests__",
+    "!src/**/*.test.ts",
+    "!src/**/*.test.tsx",
+    "ios",
+    "android",
+    "!android/build",
+    "!android/.gradle",
+    "!android/.cxx",
+    "react-native.config.js",
+    "react-native-document.podspec",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Acertijos Apps <bgoswaldo@gmail.com>",
   "scripts": {
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "typecheck": "tsc --noEmit",
