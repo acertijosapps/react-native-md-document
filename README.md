@@ -75,6 +75,20 @@ npx pod-install          # iOS (o: cd ios && pod install)
 # Android: autolinking por gradle, sin pasos extra
 ```
 
+### Dependencias opcionales
+
+- **Almacenamiento del subrayado**: la librería **no** depende de
+  `@react-native-async-storage/async-storage`. El store es inyectable
+  (`getItem`/`setItem`, sync o async): sirve AsyncStorage, MMKV, SQLite o el
+  tuyo. Instálalo **solo si** quieres persistir subrayados con esa opción; para
+  subrayado en memoria usa `createMemoryHighlightStore()`, y sin subrayado no
+  necesitas nada. Ver [Subrayado persistente](#subrayado-persistente).
+- **Lectura de archivos** (`file://`, asset del bundle): `expo-file-system` u
+  otro lector, inyectado por `readUri`. Ver [Orígenes del documento](#orígenes-del-documento).
+
+Únicas dependencias obligatorias: `react-native-reanimated` y
+`react-native-gesture-handler` (los peers).
+
 ## Inicio rápido
 
 ```tsx
