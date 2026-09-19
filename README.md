@@ -45,12 +45,6 @@ app. Al no aportar binarios, no hay librerías desalineadas de nuestra parte —
 la librería cumple el requisito de 16 KB de Android 15 (Google Play, `targetSdk
 35`) por construcción, en cualquier tamaño de página.
 
-Si tu app aún ve `.so` a 4 KB, provienen de **otros** paquetes con binarios
-precompilados (React Native, Hermes, Reanimated, Gesture Handler, Fresco,
-Expo). Se alinean actualizando esas dependencias a versiones recompiladas con
-16 KB (React Native ≥ 0.77 / Expo SDK ≥ 53); `react-native-document` funciona
-con ese stack sin cambios.
-
 ## Instalación
 
 ```sh
