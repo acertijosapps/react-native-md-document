@@ -1,8 +1,8 @@
 {
   "name": "@acertijosapps/react-native-md-document",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Immutable Markdown-as-document viewer for React Native: page-flip, zoom, text-to-speech and persistent highlights.",
-  "homepage": "https://gitlab.com/acertijoslibs/rndocument/-/blob/main/README.md",
+  "homepage": "https://acertijosapps.com/librerias/react-native-md-document",
   "repository": {
     "type": "git",
     "url": "git+https://gitlab.com/acertijoslibs/rndocument.git"
@@ -32,7 +32,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "Acertijos Apps <bgoswaldo@gmail.com>",
+  "author": "AcertijosApps <acertijos.contacto@gmail.com>",
   "scripts": {
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "typecheck": "tsc --noEmit",

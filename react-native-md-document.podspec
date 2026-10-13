@@ -7,8 +7,8 @@ Pod::Spec.new do |s|
   s.version      = package['version']
   s.summary      = package['description']
   s.license      = package['license']
-  s.authors      = { 'Venteks' => 'noreply@venteks.dev' }
-  s.homepage     = 'https://gitlab.com/acertijoslibs/rndocument'
+  s.authors      = { 'AcertijosApps' => 'acertijos.contacto@gmail.com' }
+  s.homepage     = 'https://acertijosapps.com/librerias/react-native-md-document'
   s.platforms    = { :ios => '13.0' }
   s.source       = { :git => 'https://gitlab.com/acertijoslibs/rndocument.git', :tag => s.version.to_s }
   s.source_files = 'ios/**/*.{h,m,mm,swift}'
