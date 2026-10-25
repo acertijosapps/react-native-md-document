@@ -35,7 +35,7 @@ function PaginatedDocument({
     const [size, setSize] = useState({ width: 0, height: 0 });
     const resolvedTheme = useDocTheme(colorScheme, theme, colorTokens);
     const contentHeight = size.height - PAGE_PADDING * 2;
-    const pagination = usePagination(document.blocks.length, contentHeight, document);
+    const pagination = usePagination(document.blocks.length, contentHeight, document, size.width);
 
     const onPagesChangeRef = useRef(onPagesChange);
     useEffect(() => {

@@ -44,4 +44,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default MeasureLayer;
+export default React.memo(MeasureLayer);
