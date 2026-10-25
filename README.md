@@ -396,6 +396,14 @@ La librería **no detecta la bisagra ni depende de ninguna librería de plegable
 usa [`@acertijosapps/react-native-fold`](https://www.npmjs.com/package/@acertijosapps/react-native-fold),
 conéctalas así:
 
+> [!WARNING]
+> La detección de bisagra en **iOS requiere iOS 27.1 o superior y compilar la app con Xcode
+> 27.1 o superior** (SDK de iOS 27.1). Con un Xcode anterior la app compila, pero las APIs de
+> bisagra se omiten y `useFold()` devuelve siempre `null` en iOS, incluso en un iPhone Duo.
+> `react-native-fold` además exige **React Native ≥ 0.80 con New Architecture y React ≥ 19.1**.
+> Estos requisitos aplican a tu app solo si instalas esa librería; `react-native-md-document`
+> no los exige.
+
 ```tsx
 import { FoldProvider, useFold } from '@acertijosapps/react-native-fold';
 import { DocumentViewer } from '@acertijosapps/react-native-md-document';
@@ -431,9 +439,8 @@ Notas:
 - El hueco se centra entre las dos páginas. Funciona cuando el visor ocupa todo el ancho de
   la ventana; si lo acotas con paneles laterales, la bisagra puede no coincidir con el centro
   del visor.
-- Los requisitos de `react-native-fold` (React Native ≥ 0.80 con New Architecture, React ≥
-  19.1, Xcode 27.1 para la detección en iOS) aplican a tu app solo si la instalas. Este paquete
-  no los exige.
+- Si no usas plegables o no instalas `react-native-fold`, no necesitas nada de esto: el modo libro
+  funciona igual en tablets y plegables abiertos.
 
 ## Markdown y HTML soportado
 
