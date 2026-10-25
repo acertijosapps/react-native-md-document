@@ -64,6 +64,16 @@ export function pageForBlock(pages: number[][], blockIndex: number): number {
     return pages.findIndex((p) => p.includes(blockIndex));
 }
 
+export function pageIndexForOffset(
+    pages: number[][],
+    ranges: OffsetRange[],
+    offset: number,
+): number {
+    const blockIndex = blockIndexForOffset(ranges, offset);
+    const pageIndex = blockIndex < 0 ? -1 : pageForBlock(pages, blockIndex);
+    return pageIndex < 0 ? 0 : pageIndex;
+}
+
 export function pageStartOffset(
     pages: number[][],
     ranges: OffsetRange[],

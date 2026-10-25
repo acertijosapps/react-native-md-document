@@ -3,10 +3,14 @@ import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
 
 import {
     blockIndexForOffset,
+    DUAL_PAGE_MIN_WIDTH,
     MeasureLayer,
     PAGE_PADDING,
     pageForBlock,
+    pageIndexForOffset,
     pageStartOffset,
+    resolveSpread,
+    spreadStartIndex,
     topLevelBlockRanges,
     usePagination,
 } from '../pagination';
@@ -16,6 +20,7 @@ import { useDocTheme } from '../render';
 import type { DocumentSource, ReadUri } from '../source';
 import { useDocumentSource } from '../source';
 import PageFlipper from './PageFlipper';
+import SpreadFlipper from './SpreadFlipper';
 
 export interface DocumentViewerProps {
     document?: MDDocument;
@@ -27,8 +32,16 @@ export interface DocumentViewerProps {
     highlights?: Highlight[];
     active?: ActiveRange | null;
     onWordPress?: (offset: number) => void;
-    onPageChange?: (pageIndex: number, pageCount: number, pageStartOffset: number) => void;
+    onPageChange?: (
+        pageIndex: number,
+        pageCount: number,
+        pageStartOffset: number,
+        pagesPerView: number,
+    ) => void;
     maxScale?: number;
+    dualPage?: boolean;
+    dualPageMinWidth?: number;
+    spreadGap?: number;
     onLoadComplete?: (document: MDDocument) => void;
     onLoadError?: (error: Error) => void;
     renderLoading?: () => React.ReactNode;
@@ -43,8 +56,11 @@ interface ViewerCoreProps {
     highlights?: Highlight[];
     active?: ActiveRange | null;
     onWordPress?: (offset: number) => void;
-    onPageChange?: (pageIndex: number, pageCount: number, pageStartOffset: number) => void;
+    onPageChange?: DocumentViewerProps['onPageChange'];
     maxScale?: number;
+    dualPage?: boolean;
+    dualPageMinWidth?: number;
+    spreadGap?: number;
 }
 
 function ViewerCore({
@@ -57,33 +73,62 @@ function ViewerCore({
     onWordPress,
     onPageChange,
     maxScale,
+    dualPage = true,
+    dualPageMinWidth = DUAL_PAGE_MIN_WIDTH,
+    spreadGap = 0,
 }: ViewerCoreProps): React.JSX.Element {
     const [size, setSize] = useState({ width: 0, height: 0 });
     const [pageIndex, setPageIndex] = useState(0);
     const resolvedTheme = useDocTheme(colorScheme, theme, colorTokens);
+    const { isSpread, pageWidth } = resolveSpread({
+        width: size.width,
+        height: size.height,
+        enabled: dualPage,
+        minWidth: dualPageMinWidth,
+        gap: spreadGap,
+    });
     const contentHeight = size.height - PAGE_PADDING * 2;
-    const pagination = usePagination(document.blocks.length, contentHeight, document);
+    const pagination = usePagination(document.blocks.length, contentHeight, document, pageWidth);
 
     const onPageChangeRef = useRef(onPageChange);
     useEffect(() => {
         onPageChangeRef.current = onPageChange;
     });
 
-    useEffect(() => {
-        setPageIndex(0);
-    }, [document]);
+    const [documentVersion, setDocumentVersion] = useState(0);
+    const [seenDocument, setSeenDocument] = useState(document);
+    if (seenDocument !== document) {
+        setSeenDocument(document);
+        setDocumentVersion((v) => v + 1);
+    }
+
+    const anchorRef = useRef(0);
+    const blockRanges = useMemo(() => topLevelBlockRanges(document.blocks), [document]);
+
+    const [seenPages, setSeenPages] = useState(pagination.pages);
+    if (seenPages !== pagination.pages) {
+        setSeenPages(pagination.pages);
+        if (pagination.isMeasured) {
+            setPageIndex(pageIndexForOffset(pagination.pages, blockRanges, anchorRef.current));
+        }
+    }
 
     const pageCount = pagination.pages.length;
-    const safeIndex = Math.min(pageIndex, Math.max(0, pageCount - 1));
-
-    const blockRanges = useMemo(() => topLevelBlockRanges(document.blocks), [document]);
+    const safeIndex = spreadStartIndex(Math.min(pageIndex, Math.max(0, pageCount - 1)), isSpread);
+    const pagesPerView = isSpread ? 2 : 1;
 
     useEffect(() => {
         if (pagination.isMeasured) {
             const startOffset = pageStartOffset(pagination.pages, blockRanges, safeIndex);
-            onPageChangeRef.current?.(safeIndex, pageCount, startOffset);
+            anchorRef.current = startOffset;
+            onPageChangeRef.current?.(safeIndex, pageCount, startOffset, pagesPerView);
         }
-    }, [safeIndex, pageCount, pagination.isMeasured, pagination.pages, blockRanges]);
+    }, [safeIndex, pageCount, pagesPerView, pagination.isMeasured, pagination.pages, blockRanges]);
+
+    useEffect(() => {
+        setPageIndex(0);
+        anchorRef.current = 0;
+    }, [document]);
 
     const activeStart = active?.start ?? -1;
     useEffect(() => {
@@ -94,11 +139,11 @@ function ViewerCore({
         if (bi < 0) {
             return;
         }
-        const target = pageForBlock(pagination.pages, bi);
+        const target = spreadStartIndex(pageForBlock(pagination.pages, bi), isSpread);
         if (target >= 0) {
             setPageIndex((prev) => (prev === target ? prev : target));
         }
-    }, [activeStart, pagination.isMeasured, pagination.pages, blockRanges]);
+    }, [activeStart, isSpread, pagination.isMeasured, pagination.pages, blockRanges]);
 
     const handleContainerLayout = (event: LayoutChangeEvent): void => {
         const { width, height } = event.nativeEvent.layout;
@@ -118,16 +163,34 @@ function ViewerCore({
             style={styles.container}
             onLayout={handleContainerLayout}
         >
-            {hasSize && !pagination.isMeasured ? (
+            {hasSize ? (
                 <MeasureLayer
+                    key={`${pageWidth}:${documentVersion}`}
                     blocks={document.blocks}
                     theme={resolvedTheme}
-                    width={size.width}
+                    width={pageWidth}
                     padding={PAGE_PADDING}
                     onBlockLayout={pagination.onBlockLayout}
                 />
             ) : null}
-            {hasSize && pagination.isMeasured ? (
+            {hasSize && pagination.isMeasured && isSpread ? (
+                <SpreadFlipper
+                    key={safeIndex}
+                    blocks={document.blocks}
+                    pages={pagination.pages}
+                    pageIndex={safeIndex}
+                    pageWidth={pageWidth}
+                    gap={spreadGap}
+                    height={size.height}
+                    theme={resolvedTheme}
+                    highlights={highlights}
+                    active={active}
+                    onWordPress={onWordPress}
+                    onFlip={handleFlip}
+                    maxScale={maxScale}
+                />
+            ) : null}
+            {hasSize && pagination.isMeasured && !isSpread ? (
                 <PageFlipper
                     key={safeIndex}
                     blocks={document.blocks}
@@ -162,6 +225,9 @@ function SourcedDocumentViewer({
     onWordPress,
     onPageChange,
     maxScale,
+    dualPage,
+    dualPageMinWidth,
+    spreadGap,
 }: DocumentViewerProps & { source: DocumentSource }): React.JSX.Element {
     const { document, isLoading, error, reload } = useDocumentSource(source, {
         readUri,
@@ -181,6 +247,9 @@ function SourcedDocumentViewer({
                 onWordPress={onWordPress}
                 onPageChange={onPageChange}
                 maxScale={maxScale}
+                dualPage={dualPage}
+                dualPageMinWidth={dualPageMinWidth}
+                spreadGap={spreadGap}
             />
         );
     }
@@ -216,6 +285,9 @@ function DocumentViewer(props: DocumentViewerProps): React.JSX.Element {
             onWordPress={props.onWordPress}
             onPageChange={props.onPageChange}
             maxScale={props.maxScale}
+            dualPage={props.dualPage}
+            dualPageMinWidth={props.dualPageMinWidth}
+            spreadGap={props.spreadGap}
         />
     );
 }

@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { parse } from '../../parser';
-import { blockIndexForOffset, pageForBlock, topLevelBlockRanges } from '../offsets';
+import {
+    blockIndexForOffset,
+    pageForBlock,
+    pageIndexForOffset,
+    topLevelBlockRanges,
+} from '../offsets';
 
 const DOC = parse('# Uno\n\nDos tres\n\n## Cuatro\n\nCinco seis siete');
 
@@ -40,4 +45,12 @@ test('an offset in the last block resolves to the last block', () => {
     const ranges = topLevelBlockRanges(DOC.blocks);
     const bi = blockIndexForOffset(ranges, DOC.length - 1);
     assert.equal(bi, DOC.blocks.length - 1);
+});
+
+test('pageIndexForOffset resolves the page holding an offset and falls back to 0', () => {
+    const ranges = topLevelBlockRanges(DOC.blocks);
+    const pages = DOC.blocks.map((_, i) => [i]);
+    const last = ranges[ranges.length - 1]!;
+    assert.equal(pageIndexForOffset(pages, ranges, last.start), pages.length - 1);
+    assert.equal(pageIndexForOffset(pages, ranges, 999999), 0);
 });
