@@ -85,7 +85,8 @@ function sourceFor(origin: Origin): DocumentSource {
 export default function App(): React.JSX.Element {
     const [scheme, setScheme] = useState<DocColorScheme>('auto');
     const [origin, setOrigin] = useState<Origin>('project');
-    const [page, setPage] = useState({ index: 0, count: 0, startOffset: 0 });
+    const [page, setPage] = useState({ index: 0, count: 0, startOffset: 0, perView: 1 });
+    const [dualPage, setDualPage] = useState(true);
 
     const { document, isLoading, error, reload } = useDocumentSource(sourceFor(origin), {
         readUri,
@@ -174,8 +175,31 @@ export default function App(): React.JSX.Element {
                         </View>
                         <View style={styles.speechControls}>
                             <Text style={[styles.meta, { color: chrome.meta }]}>
-                                {page.count > 0 ? `Pág. ${page.index + 1}/${page.count}` : ''}
+                                {page.count > 0
+                                    ? `Pág. ${page.index + 1}${
+                                          page.perView > 1 && page.index + 2 <= page.count
+                                              ? `-${page.index + 2}`
+                                              : ''
+                                      }/${page.count}`
+                                    : ''}
                             </Text>
+                            <Pressable
+                                style={[
+                                    styles.pill,
+                                    { borderColor: chrome.border },
+                                    dualPage && { backgroundColor: chrome.accent },
+                                ]}
+                                onPress={() => setDualPage((prev) => !prev)}
+                            >
+                                <Text
+                                    style={[
+                                        styles.pillLabel,
+                                        { color: dualPage ? chrome.onAccent : chrome.title },
+                                    ]}
+                                >
+                                    Libro
+                                </Text>
+                            </Pressable>
                             {document ? (
                                 <Pressable
                                     style={[styles.pill, { borderColor: chrome.border }]}
@@ -208,8 +232,9 @@ export default function App(): React.JSX.Element {
                                 highlights={highlights}
                                 active={tts.activeRange}
                                 onWordPress={toggleWordAt}
-                                onPageChange={(index, count, startOffset) =>
-                                    setPage({ index, count, startOffset })
+                                dualPage={dualPage}
+                                onPageChange={(index, count, startOffset, perView) =>
+                                    setPage({ index, count, startOffset, perView })
                                 }
                             />
                         ) : (
