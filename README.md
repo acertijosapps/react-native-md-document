@@ -349,6 +349,14 @@ el tamaño real del visor, así que también aplica a plegables abiertos y a spl
   cuántas páginas se ven (`1` o `2`). El TTS sigue la palabra activa al pliego que la contiene.
 - Para desactivarlo: `dualPage={false}`.
 
+| Horizontal · claro | Horizontal · oscuro |
+|---|---|
+| <img src="https://unpkg.com/@acertijosapps/react-native-md-document/media/book-landscape-light.png" width="420" alt="iPad en horizontal con dos páginas del documento lado a lado" /> | <img src="https://unpkg.com/@acertijosapps/react-native-md-document/media/book-landscape-dark.png" width="420" alt="iPad en horizontal con dos páginas en tema oscuro" /> |
+
+En vertical se mantiene una sola hoja completa, igual que en un móvil:
+
+<img src="https://unpkg.com/@acertijosapps/react-native-md-document/media/book-portrait.png" width="300" alt="iPad en vertical con una sola página" />
+
 ```tsx
 <DocumentViewer document={doc} dualPage={false} />
 ```
