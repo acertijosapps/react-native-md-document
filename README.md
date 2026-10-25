@@ -29,6 +29,8 @@ estilos en línea, resaltado y adaptación de color por tema.
 - **Tema claro/oscuro** (`auto` sigue el SO) con tokens de color adaptables por tema.
 - **Orígenes**: URL remota, ruta local del dispositivo, ruta del proyecto.
 - **Orientación** vertical y horizontal (re-pagina al rotar).
+- **Modo libro**: en tablets y plegables en horizontal muestra dos páginas lado a lado, con
+  el volteo de hoja desde el lomo. Activo por defecto; se desactiva con `dualPage={false}`.
 
 ## Requisitos
 
@@ -328,6 +330,34 @@ landscape en la config nativa de tu app (Expo: `app.json` `orientation: "default
 horizontal, usá `SafeAreaProvider` de `react-native-safe-area-context` con
 `initialMetrics={initialWindowMetrics}` para insets correctos desde el primer frame.
 
+### Modo libro (dos páginas)
+
+Cuando el visor mide **más ancho que alto** y al menos `dualPageMinWidth` dp (600 por defecto),
+divide el área en dos páginas, como un libro abierto. Se decide por el tamaño del contenedor,
+no por el dispositivo: aplica a tablets, a plegables abiertos y a split-screen. En vertical, o
+por debajo del ancho mínimo, vuelve a una sola página.
+
+- Un gesto voltea **un pliego** (dos páginas). La paginación se calcula con el ancho de una
+  página, y al rotar o alternar el modo se conserva el punto de lectura.
+- `onPageChange` reporta la **página izquierda** del pliego y, como cuarto argumento,
+  cuántas páginas se ven (`1` o `2`). El TTS sigue la palabra activa al pliego que la contiene.
+- Para desactivarlo: `dualPage={false}`.
+
+```tsx
+<DocumentViewer document={doc} dualPage={false} />
+```
+
+**Plegables con bisagra.** `spreadGap` (dp) reserva un espacio entre las dos páginas para no
+dibujar contenido sobre el pliegue. La librería no detecta la bisagra: si tu app usa
+[`@acertijosapps/react-native-fold`](https://www.npmjs.com/package/@acertijosapps/react-native-fold),
+pásale su ancho (el hueco queda centrado entre las páginas):
+
+```tsx
+const fold = useFold();
+
+<DocumentViewer document={doc} spreadGap={fold?.bounds.width ?? 0} />;
+```
+
 ## Markdown y HTML soportado
 
 **Markdown**: encabezados ATX (`#`…`######`), párrafos, listas ordenadas/no-ordenadas
@@ -371,8 +401,11 @@ scrollea dentro de su hoja; el HTML es un subconjunto (sin `colspan`, imágenes 
 | `highlights?` | `Highlight[]` | `[]` | Subrayados a pintar (`{ id, start, end, color? }`) |
 | `active?` | `ActiveRange \| null` | `null` | Palabra hablada por el TTS; se resalta y auto-avanza de página |
 | `onWordPress?` | `(offset: number) => void` | — | Tap en una palabra (para subrayar/quitar) |
-| `onPageChange?` | `(pageIndex: number, pageCount: number, pageStartOffset: number) => void` | — | Notifica cambio de página |
+| `onPageChange?` | `(pageIndex: number, pageCount: number, pageStartOffset: number, pagesPerView: number) => void` | — | Notifica cambio de página. En modo libro `pageIndex` es la página izquierda y `pagesPerView` vale `2` |
 | `maxScale?` | `number` | `3` | Zoom máximo por pinch |
+| `dualPage?` | `boolean` | `true` | Muestra dos páginas en horizontal cuando el visor es lo bastante ancho. `false` fuerza una sola página |
+| `dualPageMinWidth?` | `number` | `600` | Ancho mínimo (dp) del visor para activar el modo libro |
+| `spreadGap?` | `number` | `0` | Espacio (dp) entre las dos páginas, p. ej. el ancho de la bisagra de un plegable |
 | `onLoadComplete?` | `(document: MDDocument) => void` | — | Se dispara cuando la carga del `source` termina con éxito |
 | `onLoadError?` | `(error: Error) => void` | — | Se dispara cuando la carga del `source` falla |
 | `renderLoading?` | `() => React.ReactNode` | — | Componente a mostrar mientras carga el `source` |
