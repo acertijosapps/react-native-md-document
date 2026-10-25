@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import { resolveSpread, spreadStartIndex } from '../spread';
 
-const BASE = { enabled: true, minWidth: 600, gap: 0 };
+const BASE = { enabled: true, minWidth: 600, gap: 0, screenShortSide: 834 };
 
 test('resolveSpread splits a wide landscape container into two pages', () => {
     const layout = resolveSpread({ ...BASE, width: 1000, height: 700 });
@@ -23,6 +23,11 @@ test('resolveSpread keeps a single page in portrait', () => {
 test('resolveSpread keeps a single page below the minimum width', () => {
     const layout = resolveSpread({ ...BASE, width: 580, height: 400 });
     assert.deepEqual(layout, { isSpread: false, pageWidth: 580 });
+});
+
+test('resolveSpread keeps a single page on a phone in landscape', () => {
+    const layout = resolveSpread({ ...BASE, screenShortSide: 393, width: 852, height: 360 });
+    assert.deepEqual(layout, { isSpread: false, pageWidth: 852 });
 });
 
 test('resolveSpread keeps a single page when disabled', () => {

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
+import { type LayoutChangeEvent, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import {
     blockIndexForOffset,
@@ -80,12 +80,14 @@ function ViewerCore({
     const [size, setSize] = useState({ width: 0, height: 0 });
     const [pageIndex, setPageIndex] = useState(0);
     const resolvedTheme = useDocTheme(colorScheme, theme, colorTokens);
+    const screen = useWindowDimensions();
     const { isSpread, pageWidth } = resolveSpread({
         width: size.width,
         height: size.height,
         enabled: dualPage,
         minWidth: dualPageMinWidth,
         gap: spreadGap,
+        screenShortSide: Math.min(screen.width, screen.height),
     });
     const contentHeight = size.height - PAGE_PADDING * 2;
     const pagination = usePagination(document.blocks.length, contentHeight, document, pageWidth);

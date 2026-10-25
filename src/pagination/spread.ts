@@ -1,4 +1,5 @@
 export const DUAL_PAGE_MIN_WIDTH = 600;
+export const TABLET_MIN_SHORT_SIDE = 600;
 
 export interface SpreadInput {
     width: number;
@@ -6,6 +7,7 @@ export interface SpreadInput {
     enabled: boolean;
     minWidth: number;
     gap: number;
+    screenShortSide: number;
 }
 
 export interface SpreadLayout {
@@ -19,8 +21,10 @@ export function resolveSpread({
     enabled,
     minWidth,
     gap,
+    screenShortSide,
 }: SpreadInput): SpreadLayout {
-    const isSpread = enabled && width > height && width >= minWidth;
+    const isTablet = screenShortSide >= TABLET_MIN_SHORT_SIDE;
+    const isSpread = enabled && isTablet && width > height && width >= minWidth;
     if (!isSpread) {
         return { isSpread: false, pageWidth: width };
     }

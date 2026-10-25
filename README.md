@@ -332,10 +332,16 @@ horizontal, usá `SafeAreaProvider` de `react-native-safe-area-context` con
 
 ### Modo libro (dos páginas)
 
-Cuando el visor mide **más ancho que alto** y al menos `dualPageMinWidth` dp (600 por defecto),
-divide el área en dos páginas, como un libro abierto. Se decide por el tamaño del contenedor,
-no por el dispositivo: aplica a tablets, a plegables abiertos y a split-screen. En vertical, o
-por debajo del ancho mínimo, vuelve a una sola página.
+Se activa solo cuando se cumplen las tres condiciones:
+
+- La pantalla es de tamaño **tablet o plegable**: el lado corto de la ventana mide al menos
+  600 dp (el mismo criterio `sw600dp` de Android). Un móvil, incluso en horizontal, mantiene
+  una sola página.
+- El visor mide **más ancho que alto** (horizontal).
+- El visor mide al menos `dualPageMinWidth` dp de ancho (600 por defecto).
+
+En vertical siempre se ve **una sola hoja completa**, igual que en un móvil. La decisión usa
+el tamaño real del visor, así que también aplica a plegables abiertos y a split-screen.
 
 - Un gesto voltea **un pliego** (dos páginas). La paginación se calcula con el ancho de una
   página, y al rotar o alternar el modo se conserva el punto de lectura.
