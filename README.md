@@ -328,26 +328,13 @@ El visor es *size-driven*: al rotar, mide el nuevo tamaño y **re-pagina** solo.
 landscape en la config nativa de tu app (Expo: `app.json` `orientation: "default"`; RN puro:
 `UISupportedInterfaceOrientations` en iOS y `android:screenOrientation` en Android). En
 horizontal, usá `SafeAreaProvider` de `react-native-safe-area-context` con
-`initialMetrics={initialWindowMetrics}` para insets correctos desde el primer frame.
+`initialMetrics={initialWindowMetrics}` para insets correctos desde el primer frame. En
+tablets y plegables, el horizontal activa el [modo libro](#modo-libro-dos-páginas).
 
-### Modo libro (dos páginas)
+## Modo libro (dos páginas)
 
-Se activa solo cuando se cumplen las tres condiciones:
-
-- La pantalla es de tamaño **tablet o plegable**: el lado corto de la ventana mide al menos
-  600 dp (el mismo criterio `sw600dp` de Android). Un móvil, incluso en horizontal, mantiene
-  una sola página.
-- El visor mide **más ancho que alto** (horizontal).
-- El visor mide al menos `dualPageMinWidth` dp de ancho (600 por defecto).
-
-En vertical siempre se ve **una sola hoja completa**, igual que en un móvil. La decisión usa
-el tamaño real del visor, así que también aplica a plegables abiertos y a split-screen.
-
-- Un gesto voltea **un pliego** (dos páginas). La paginación se calcula con el ancho de una
-  página, y al rotar o alternar el modo se conserva el punto de lectura.
-- `onPageChange` reporta la **página izquierda** del pliego y, como cuarto argumento,
-  cuántas páginas se ven (`1` o `2`). El TTS sigue la palabra activa al pliego que la contiene.
-- Para desactivarlo: `dualPage={false}`.
+En tablets y plegables en horizontal, el visor divide el área en dos páginas y las voltea
+como un libro abierto. Está **activo por defecto**; se desactiva con `dualPage={false}`.
 
 | Horizontal · claro | Horizontal · oscuro |
 |---|---|
@@ -357,20 +344,96 @@ En vertical se mantiene una sola hoja completa, igual que en un móvil:
 
 <img src="https://unpkg.com/@acertijosapps/react-native-md-document/media/book-portrait.png" width="300" alt="iPad en vertical con una sola página" />
 
+### Cuándo se activa
+
+Se activa solo cuando se cumplen las tres condiciones:
+
+- La pantalla es de tamaño **tablet o plegable**: el lado corto de la ventana mide al menos
+  600 dp (el mismo criterio `sw600dp` de Android). Un móvil, incluso en horizontal, mantiene
+  una sola página.
+- El visor mide **más ancho que alto** (horizontal).
+- El visor mide al menos `dualPageMinWidth` dp de ancho (600 por defecto).
+
+La decisión usa el tamaño real del visor, no el modelo del dispositivo, así que también aplica
+a plegables abiertos y a split-screen. Al rotar, el visor cambia de modo solo y conserva el
+punto de lectura.
+
+### Props
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `dualPage?` | `boolean` | `true` | Activa el modo libro. `false` fuerza siempre una sola página |
+| `dualPageMinWidth?` | `number` | `600` | Ancho mínimo (dp) del visor para mostrar dos páginas |
+| `spreadGap?` | `number` | `0` | Espacio (dp) entre las dos páginas; sirve para reservar la bisagra de un plegable |
+
 ```tsx
+// Siempre una sola página, también en tablets
 <DocumentViewer document={doc} dualPage={false} />
 ```
 
-**Plegables con bisagra.** `spreadGap` (dp) reserva un espacio entre las dos páginas para no
-dibujar contenido sobre el pliegue. La librería no detecta la bisagra: si tu app usa
-[`@acertijosapps/react-native-fold`](https://www.npmjs.com/package/@acertijosapps/react-native-fold),
-pásale su ancho (el hueco queda centrado entre las páginas):
+### Comportamiento
+
+- **Un gesto voltea un pliego** (dos páginas). La hoja derecha gira desde el lomo al avanzar,
+  y la izquierda al retroceder. El zoom por pinch y el arrastre actúan sobre el pliego completo.
+- **Paginación:** se calcula con el ancho de una página, así que el documento tiene más páginas
+  que en vertical. Al cambiar de modo se conserva el texto que estabas leyendo.
+- **`onPageChange(pageIndex, pageCount, pageStartOffset, pagesPerView)`:** en modo libro
+  `pageIndex` es la página **izquierda** del pliego y `pagesPerView` vale `2` (en una sola
+  página, `1`). Úsalo para mostrar "Págs. 1-2 de N".
+- **Text-to-speech:** la lectura avanza al pliego que contiene la palabra activa.
+- **Subrayado:** no cambia; sigue usando los mismos offsets del texto.
+
+## Plegables
+
+Un plegable **abierto y plano** se comporta como una tablet: en horizontal muestra dos
+páginas, sin configuración extra.
+
+Cuando el dispositivo está **medio abierto en postura libro** (bisagra vertical), la bisagra
+queda entre las dos mitades de la pantalla. Para que ninguna página se dibuje sobre el
+pliegue, pasa su ancho en `spreadGap`: el hueco queda centrado entre las páginas.
+
+La librería **no detecta la bisagra ni depende de ninguna librería de plegables**. Si tu app
+usa [`@acertijosapps/react-native-fold`](https://www.npmjs.com/package/@acertijosapps/react-native-fold),
+conéctalas así:
 
 ```tsx
-const fold = useFold();
+import { FoldProvider, useFold } from '@acertijosapps/react-native-fold';
+import { DocumentViewer } from '@acertijosapps/react-native-md-document';
 
-<DocumentViewer document={doc} spreadGap={fold?.bounds.width ?? 0} />;
+function Reader({ doc }) {
+    const fold = useFold();
+    const gap = fold?.orientation === 'vertical' ? fold.bounds.width : 0;
+
+    return (
+        <DocumentViewer
+            document={doc}
+            spreadGap={gap}
+        />
+    );
+}
+
+export default function App() {
+    return (
+        <FoldProvider>
+            <Reader doc={doc} />
+        </FoldProvider>
+    );
+}
 ```
+
+Notas:
+
+- `useFold()` devuelve `null` fuera de postura plegada (pantalla exterior, dispositivos sin
+  bisagra o iOS anterior a 27.1); con `?.` y un valor por defecto de `0` el visor se comporta
+  como en una tablet normal.
+- `bounds.width` ya viene en dp: en Android es la línea del pliegue y en iOS incluye los
+  márgenes que reserva el sistema (unos 40 pt en el iPhone Duo).
+- El hueco se centra entre las dos páginas. Funciona cuando el visor ocupa todo el ancho de
+  la ventana; si lo acotas con paneles laterales, la bisagra puede no coincidir con el centro
+  del visor.
+- Los requisitos de `react-native-fold` (React Native ≥ 0.80 con New Architecture, React ≥
+  19.1, Xcode 27.1 para la detección en iOS) aplican a tu app solo si la instalas. Este paquete
+  no los exige.
 
 ## Markdown y HTML soportado
 
