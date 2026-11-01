@@ -5,10 +5,10 @@
   "homepage": "https://acertijosapps.com/librerias/react-native-md-document",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/acertijoslibs/rndocument.git"
+    "url": "git+https://github.com/acertijosapps/react-native-md-document.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/acertijoslibs/rndocument/-/issues"
+    "url": "https://github.com/acertijosapps/react-native-md-document/issues"
   },
   "main": "src/index.ts",
   "types": "src/index.ts",
