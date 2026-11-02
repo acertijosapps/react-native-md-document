@@ -7,6 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [1.4.0] - 2026-11-02
+
+### Added
+
 - `keepWithNextFlags(blocks)` export and an optional fifth `keepWithNext` argument for `usePagination`, plus a third `keepWithNext` argument for `paginate`, to control which blocks stay with the next one.
 
 ### Changed
@@ -16,8 +26,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - A heading is no longer left alone at the bottom of a page: it moves to the next page together with the block that follows it (consecutive headings travel together). A group taller than a page is still split block by block.
-
-### Removed
 
 ## [1.3.0] - 2026-11-01
 
