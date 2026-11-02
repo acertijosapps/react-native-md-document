@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
 
 import type { MDDocument } from '../parser/types';
@@ -7,6 +7,7 @@ import { useDocTheme } from '../render';
 import { PAGE_PADDING } from './constants';
 import MeasureLayer from './MeasureLayer';
 import Page from './Page';
+import { keepWithNextFlags } from './paginate';
 import { usePagination } from './usePagination';
 
 export interface PaginatedDocumentProps {
@@ -35,7 +36,14 @@ function PaginatedDocument({
     const [size, setSize] = useState({ width: 0, height: 0 });
     const resolvedTheme = useDocTheme(colorScheme, theme, colorTokens);
     const contentHeight = size.height - PAGE_PADDING * 2;
-    const pagination = usePagination(document.blocks.length, contentHeight, document, size.width);
+    const keepWithNext = useMemo(() => keepWithNextFlags(document.blocks), [document]);
+    const pagination = usePagination(
+        document.blocks.length,
+        contentHeight,
+        document,
+        size.width,
+        keepWithNext,
+    );
 
     const onPagesChangeRef = useRef(onPagesChange);
     useEffect(() => {
