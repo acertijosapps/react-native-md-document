@@ -24,6 +24,13 @@ npm run format:check  # check formatting with Prettier
 npm test              # run the unit tests (node:test)
 ```
 
+The accessibility checks run as XCUITests against the example app on an iOS simulator (see
+[`example/uitests/run.sh`](./example/uitests/run.sh) for the setup):
+
+```sh
+cd example && npm run test:a11y -- <simulator-udid>
+```
+
 ## Branching model
 
 Two permanent branches, both protected:
