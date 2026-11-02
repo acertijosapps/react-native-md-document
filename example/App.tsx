@@ -38,7 +38,7 @@ function makeSpeechEngine(): SpeechEngine {
 const speechEngine = makeSpeechEngine();
 
 const REMOTE_URL =
-    'https://firebasestorage.googleapis.com/v0/b/cpeum-294e1.appspot.com/o/test%2Fshowcase.md?alt=media&token=72c4432e-06db-4a60-9e22-aef5db8f9e07';
+    'https://raw.githubusercontent.com/acertijosapps/react-native-md-document/main/example/assets/showcase.md';
 
 const LOCAL_URI = `${FileSystem.documentDirectory}showcase.md`;
 
@@ -63,13 +63,13 @@ async function readUri(uri: string, headers?: Record<string, string>): Promise<s
 
 type Origin = 'project' | 'url' | 'local';
 const ORIGINS: Origin[] = ['project', 'url', 'local'];
-const ORIGIN_LABEL: Record<Origin, string> = { project: 'Proyecto', url: 'URL', local: 'Local' };
+const ORIGIN_LABEL: Record<Origin, string> = { project: 'Project', url: 'URL', local: 'Local' };
 
 const SCHEME_CYCLE: DocColorScheme[] = ['auto', 'light', 'dark'];
 const SCHEME_LABEL: Record<DocColorScheme, string> = {
     auto: 'Auto',
-    light: 'Claro',
-    dark: 'Oscuro',
+    light: 'Light',
+    dark: 'Dark',
 };
 
 function sourceFor(origin: Origin): DocumentSource {
@@ -111,7 +111,13 @@ export default function App(): React.JSX.Element {
         }
     };
     const speechLabel =
-        tts.status === 'speaking' ? 'Pausa' : tts.status === 'paused' ? 'Reanudar' : 'Leer';
+        tts.status === 'speaking' ? 'Pause' : tts.status === 'paused' ? 'Resume' : 'Read';
+
+    const isSpread = page.perView > 1 && page.index + 2 <= page.count;
+    const pageLabel =
+        page.count > 0
+            ? `${isSpread ? 'Pages' : 'Page'} ${page.index + 1}${isSpread ? `-${page.index + 2}` : ''}/${page.count}`
+            : '';
 
     const system = useColorScheme();
     const mode = scheme === 'auto' ? (system ?? 'light') : scheme;
@@ -131,16 +137,19 @@ export default function App(): React.JSX.Element {
                 <SafeAreaView style={styles.root}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: chrome.title }]}>
-                            react-native-document
+                            react-native-md-document
                         </Text>
-                        <Pressable
-                            style={[styles.pill, { borderColor: chrome.border }]}
-                            onPress={handleToggleScheme}
-                        >
-                            <Text style={[styles.pillLabel, { color: chrome.title }]}>
-                                {SCHEME_LABEL[scheme]}
-                            </Text>
-                        </Pressable>
+                        <View style={styles.headerEnd}>
+                            <Text style={[styles.meta, { color: chrome.meta }]}>{pageLabel}</Text>
+                            <Pressable
+                                style={[styles.pill, { borderColor: chrome.border }]}
+                                onPress={handleToggleScheme}
+                            >
+                                <Text style={[styles.pillLabel, { color: chrome.title }]}>
+                                    {SCHEME_LABEL[scheme]}
+                                </Text>
+                            </Pressable>
+                        </View>
                     </View>
 
                     <View style={styles.controls}>
@@ -174,15 +183,6 @@ export default function App(): React.JSX.Element {
                             })}
                         </View>
                         <View style={styles.speechControls}>
-                            <Text style={[styles.meta, { color: chrome.meta }]}>
-                                {page.count > 0
-                                    ? `Pág. ${page.index + 1}${
-                                          page.perView > 1 && page.index + 2 <= page.count
-                                              ? `-${page.index + 2}`
-                                              : ''
-                                      }/${page.count}`
-                                    : ''}
-                            </Text>
                             <Pressable
                                 style={[
                                     styles.pill,
@@ -197,7 +197,7 @@ export default function App(): React.JSX.Element {
                                         { color: dualPage ? chrome.onAccent : chrome.title },
                                     ]}
                                 >
-                                    Libro
+                                    Book
                                 </Text>
                             </Pressable>
                             {document ? (
@@ -240,7 +240,7 @@ export default function App(): React.JSX.Element {
                         ) : (
                             <View style={styles.status}>
                                 <Text style={[styles.statusText, { color: chrome.meta }]}>
-                                    {isLoading ? 'Cargando…' : (error?.message ?? 'Sin documento')}
+                                    {isLoading ? 'Loading…' : (error?.message ?? 'No document')}
                                 </Text>
                                 {error ? (
                                     <Pressable
@@ -248,7 +248,7 @@ export default function App(): React.JSX.Element {
                                         onPress={reload}
                                     >
                                         <Text style={[styles.pillLabel, { color: chrome.title }]}>
-                                            Reintentar
+                                            Retry
                                         </Text>
                                     </Pressable>
                                 ) : null}
@@ -298,6 +298,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    headerEnd: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
     },
     segment: {
         flexDirection: 'row',

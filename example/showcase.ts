@@ -1,33 +1,33 @@
 export const SHOWCASE_MD = `<!--
-  showcase.md — Documento genérico de demostración.
-  Recorre todo lo que el visor sabe renderizar: encabezado de marca, títulos,
-  estilos inline (negrita, cursiva, subrayado, tachado, código, enlace, color,
-  resaltado), tablas con celdas de color y anchos por columna, cita, separador,
-  bloque de código y pie de página.
-  Todos los colores usan var(--token) para adaptarse a claro/oscuro. Los tokens
-  base (page-bg, text, heading, rule, link, code, highlight) los da la librería;
-  los de marca (accent, on-accent, accent-text) vienen del prop colorTokens.
+  showcase.md — Generic demo document.
+  Walks through everything the viewer can render: brand banner, headings,
+  inline styles (bold, italic, underline, strikethrough, code, link, color,
+  highlight), tables with colored cells and per-column widths, quote, divider,
+  code block and footer.
+  All colors use var(--token) to adapt to light/dark. The base tokens
+  (page-bg, text, heading, rule, link, code, highlight) come from the library;
+  the brand ones (accent, on-accent, accent-text) come from the colorTokens prop.
 -->
 
 <div style="font-family: Arial, Helvetica, sans-serif; max-width: 7.08in; margin: 0 auto; color: var(--text);">
 
-<div style="background: var(--accent); color: var(--on-accent); text-align: center; font-size: 18pt; text-transform: uppercase; padding: 10px 24px; margin: 0 0 12px;">react-native-document</div>
+<div style="background: var(--accent); color: var(--on-accent); text-align: center; font-size: 18pt; text-transform: uppercase; padding: 10px 24px; margin: 0 0 12px;">react-native-md-document</div>
 
-<p style="text-align: center; font-size: 13pt; font-style: italic; color: var(--accent-text); margin: 0 0 18px;">Documento de demostración · Markdown como PDF</p>
+<p style="text-align: center; font-size: 13pt; font-style: italic; color: var(--accent-text); margin: 0 0 18px;">Demo document · Markdown as PDF</p>
 
-<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">1. Qué muestra este documento</h2>
+<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">1. What this document shows</h2>
 
-<p style="text-align: justify; margin: 0 0 10px;">Este archivo ejercita cada capacidad del visor en una sola página fuente. El contenido es <strong>inmutable</strong>: no se edita, solo se lee, se pagina y se navega con gesto de <em>page-flip</em>. Toca cualquier palabra para resaltarla; el subrayado <span style="background: var(--highlight);">persiste entre sesiones</span> porque se guarda por offset estable.</p>
+<p style="text-align: justify; margin: 0 0 10px;">This file exercises every capability of the viewer in a single source page. The content is <strong>immutable</strong>: it is not edited, only read, paginated and navigated with a <em>page-flip</em> gesture. Tap any word to highlight it; the highlight <span style="background: var(--highlight);">persists across sessions</span> because it is stored by stable offset.</p>
 
-<p style="text-align: justify; margin: 0 0 16px;">Usa <strong>Leer</strong> para escuchar el texto con voz nativa del sistema: la palabra activa se resalta y la página avanza sola para seguir el marcador. <strong>Pausa</strong> conserva la posición y <strong>Reanudar</strong> continúa donde se detuvo.</p>
+<p style="text-align: justify; margin: 0 0 16px;">Use <strong>Read</strong> to listen to the text with the system's native voice: the active word is highlighted and the page advances by itself to follow the marker. <strong>Pause</strong> keeps the position and <strong>Resume</strong> continues where it stopped.</p>
 
-<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">2. Estilos de texto inline</h2>
+<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">2. Inline text styles</h2>
 
-<p style="text-align: justify; margin: 0 0 10px;">El visor entiende <strong>negrita</strong>, <em>cursiva</em>, <u>subrayado</u>, <s>tachado</s>, <code>código monoespaciado</code> y <a href="https://reactnative.dev">enlaces</a>. También color por token de marca: <span style="color: var(--accent-text);">este fragmento va en color de acento</span>. Y resaltado de fondo: <span style="background: var(--highlight);">texto sobre el color de resaltado del tema</span>.</p>
+<p style="text-align: justify; margin: 0 0 10px;">The viewer understands <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <s>strikethrough</s>, <code>monospaced code</code> and <a href="https://reactnative.dev">links</a>. It also supports brand-token color: <span style="color: var(--accent-text);">this fragment is in the accent color</span>. And background highlighting: <span style="background: var(--highlight);">text over the theme's highlight color</span>.</p>
 
-<p style="text-align: justify; margin: 0 0 16px;">Los estilos se combinan: <strong><em>negrita en cursiva</em></strong>, o <strong>negrita con <code>código</code> dentro</strong>. Cada palabra conserva su offset en el texto plano, así el resaltado manual y el marcador de lectura comparten el mismo espacio de coordenadas.</p>
+<p style="text-align: justify; margin: 0 0 16px;">Styles combine: <strong><em>bold italic</em></strong>, or <strong>bold with <code>code</code> inside</strong>. Every word keeps its offset in the plain text, so manual highlights and the reading marker share the same coordinate space.</p>
 
-<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">3. Tabla con celdas de color</h2>
+<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">3. Table with colored cells</h2>
 
 <table style="width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; border: 3px solid var(--page-bg); margin-bottom: 16px;">
   <colgroup>
@@ -36,18 +36,18 @@ export const SHOWCASE_MD = `<!--
   </colgroup>
   <tr>
     <td style="background: var(--accent); color: var(--on-accent); font-weight: bold; font-size: 12pt; text-align: center; vertical-align: middle; padding: 8px 6px; border: 3px solid var(--page-bg);">
-      <p style="margin: 0; text-align: center;">Capacidad</p>
+      <p style="margin: 0; text-align: center;">Capability</p>
     </td>
     <td style="background: var(--accent); color: var(--on-accent); font-weight: bold; font-size: 12pt; text-align: center; vertical-align: middle; padding: 8px 6px; border: 3px solid var(--page-bg);">
-      <p style="margin: 0; text-align: center;">Detalle</p>
+      <p style="margin: 0; text-align: center;">Detail</p>
     </td>
   </tr>
   <tr>
     <td style="font-weight: bold; font-size: 11pt; text-align: left; vertical-align: top; padding: 6px 8px; border: 3px solid var(--page-bg);">
-      <p style="margin: 0;">Paginación</p>
+      <p style="margin: 0;">Pagination</p>
     </td>
     <td style="font-size: 11pt; text-align: justify; vertical-align: top; padding: 6px 8px; border: 3px solid var(--page-bg);">
-      <p style="margin: 0;">Medición real de alturas y empaquetado en páginas; se recalcula al cambiar de tamaño u orientación.</p>
+      <p style="margin: 0;">Real height measurement and packing into pages; recalculated when the size or orientation changes.</p>
     </td>
   </tr>
   <tr>
@@ -55,48 +55,48 @@ export const SHOWCASE_MD = `<!--
       <p style="margin: 0;">Zoom</p>
     </td>
     <td style="font-size: 11pt; text-align: justify; vertical-align: top; padding: 6px 8px; border: 3px solid var(--page-bg);">
-      <p style="margin: 0;">Pellizco para acercar y arrastre para desplazar; el gesto de cambio de página se bloquea mientras hay zoom.</p>
+      <p style="margin: 0;">Pinch to zoom in and drag to pan; the page-turning gesture is locked while zoomed.</p>
     </td>
   </tr>
   <tr>
     <td style="font-weight: bold; font-size: 11pt; text-align: left; vertical-align: top; padding: 6px 8px; border: 3px solid var(--page-bg);">
-      <p style="margin: 0;">Tema</p>
+      <p style="margin: 0;">Theme</p>
     </td>
     <td style="font-size: 11pt; text-align: justify; vertical-align: top; padding: 6px 8px; border: 3px solid var(--page-bg);">
-      <p style="margin: 0;">Claro, oscuro o automático. Los colores del documento son tokens que el visor resuelve por tema.</p>
+      <p style="margin: 0;">Light, dark or automatic. The document's colors are tokens that the viewer resolves per theme.</p>
     </td>
   </tr>
 </table>
 
-<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">4. Cita y separador</h2>
+<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">4. Quote and divider</h2>
 
 <blockquote style="border-left: 4px solid var(--accent); padding-left: 12px; margin: 0 0 12px; font-style: italic; color: var(--accent-text);">
-<p style="margin: 0;">La fidelidad de un PDF sin dejar de ser texto vivo: seleccionable, legible por voz y adaptable al tema.</p>
+<p style="margin: 0;">The fidelity of a PDF while remaining live text: selectable, readable aloud and adaptable to the theme.</p>
 </blockquote>
 
 <hr />
 
-<h2 style="color: var(--heading); font-size: 16pt; margin: 12px 0 6px;">5. Muestra de código</h2>
+<h2 style="color: var(--heading); font-size: 16pt; margin: 12px 0 6px;">5. Code sample</h2>
 
-<p style="text-align: justify; margin: 0 0 8px;">El texto puede incluir código monoespaciado embebido, por ejemplo el punto de entrada del visor:</p>
+<p style="text-align: justify; margin: 0 0 8px;">The text can include embedded monospaced code, for example the viewer's entry point:</p>
 
 <div style="background: var(--highlight); padding: 8px 10px; margin: 0 0 16px;">
 <p style="margin: 0;"><code>useDocumentSource({ markdown: SHOWCASE_MD })</code></p>
 </div>
 
-<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">6. Contenido largo para paginar</h2>
+<h2 style="color: var(--heading); font-size: 16pt; margin: 0 0 6px;">6. Long content to paginate</h2>
 
-<p style="text-align: justify; margin: 0 0 10px;">A partir de aquí el texto es suficiente para llenar varias páginas y así probar el cambio de página, el auto-avance durante la lectura y el resaltado que se conserva al volver. Cada párrafo mantiene su posición en el texto plano; al paginar no se pierde ni el marcador de lectura ni los subrayados guardados.</p>
+<p style="text-align: justify; margin: 0 0 10px;">From here on there is enough text to fill several pages, so you can try turning pages, the auto-advance while reading and the highlight that is kept when you come back. Every paragraph keeps its position in the plain text; paginating loses neither the reading marker nor the saved highlights.</p>
 
-<p style="text-align: justify; margin: 0 0 10px;">Un documento se trata como una fuente inmutable. Esa inmutabilidad da un espacio de offsets estable: el resaltado que guardas hoy sigue apuntando a las mismas palabras mañana, aunque cambie el tamaño de la pantalla, la orientación o el tema. La paginación es una vista sobre ese texto, no una modificación de él.</p>
+<p style="text-align: justify; margin: 0 0 10px;">A document is treated as an immutable source. That immutability gives a stable offset space: the highlight you save today still points at the same words tomorrow, even if the screen size, the orientation or the theme changes. Pagination is a view over that text, not a modification of it.</p>
 
-<p style="text-align: justify; margin: 0 0 10px;">La lectura por voz usa el motor del sistema operativo a través de un módulo nativo propio, sin dependencias de terceros. Mientras habla, informa el rango de la palabra en curso; el visor traduce ese rango a la palabra y a la página correspondiente, resalta la palabra y, si está en otra página, avanza para seguirla.</p>
+<p style="text-align: justify; margin: 0 0 10px;">Reading aloud uses the operating system's engine through its own native module, with no third-party dependencies. While it speaks, it reports the range of the current word; the viewer maps that range to the word and its page, highlights the word and, if it is on another page, advances to follow it.</p>
 
-<p style="text-align: justify; margin: 0 0 10px;">Los gestos se componen: un toque resalta una palabra, un arrastre horizontal cambia de página con animación de volteo, y el pellizco hace zoom. Cuando hay zoom activo, el arrastre desplaza el contenido en lugar de cambiar de página, para que el acercamiento sea utilizable.</p>
+<p style="text-align: justify; margin: 0 0 10px;">Gestures compose: a tap highlights a word, a horizontal drag turns the page with a flip animation, and a pinch zooms. While zoomed in, dragging pans the content instead of turning the page, so that zooming stays usable.</p>
 
-<p style="text-align: justify; margin: 0 0 16px;">Todo lo visual descansa sobre dos dependencias: Reanimated y Gesture Handler. El almacenamiento, la fuente del documento y el motor de voz son puertos inyectables: puedes conectar el que prefieras o usar los que trae la librería.</p>
+<p style="text-align: justify; margin: 0 0 16px;">Everything visual rests on two dependencies: Reanimated and Gesture Handler. The storage, the document source and the speech engine are injectable ports: you can plug in whichever you prefer or use the ones the library ships.</p>
 
-<div style="border-top: 2px solid var(--rule); margin-top: 20px; padding-top: 6px; text-align: right; font-size: 9pt; color: var(--accent-text);">Documento de demostración · Página generada por el visor</div>
+<div style="border-top: 2px solid var(--rule); margin-top: 20px; padding-top: 6px; text-align: right; font-size: 9pt; color: var(--accent-text);">Demo document · Page generated by the viewer</div>
 
 </div>
 `;

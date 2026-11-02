@@ -19,6 +19,9 @@ import type { ActiveRange, ColorTokens, DocColorScheme, DocTheme, Highlight } fr
 import { useDocTheme } from '../render';
 import type { DocumentSource, ReadUri } from '../source';
 import { useDocumentSource } from '../source';
+import type { ViewerAccessibilityLabels } from './a11y';
+import { mergeAccessibilityLabels } from './a11y';
+import PageControl from './PageControl';
 import PageFlipper from './PageFlipper';
 import SpreadFlipper from './SpreadFlipper';
 
@@ -42,6 +45,7 @@ export interface DocumentViewerProps {
     dualPage?: boolean;
     dualPageMinWidth?: number;
     spreadGap?: number;
+    accessibilityLabels?: Partial<ViewerAccessibilityLabels>;
     onLoadComplete?: (document: MDDocument) => void;
     onLoadError?: (error: Error) => void;
     renderLoading?: () => React.ReactNode;
@@ -61,6 +65,7 @@ interface ViewerCoreProps {
     dualPage?: boolean;
     dualPageMinWidth?: number;
     spreadGap?: number;
+    accessibilityLabels?: Partial<ViewerAccessibilityLabels>;
 }
 
 function ViewerCore({
@@ -76,6 +81,7 @@ function ViewerCore({
     dualPage = true,
     dualPageMinWidth = DUAL_PAGE_MIN_WIDTH,
     spreadGap = 0,
+    accessibilityLabels,
 }: ViewerCoreProps): React.JSX.Element {
     const [size, setSize] = useState({ width: 0, height: 0 });
     const [pageIndex, setPageIndex] = useState(0);
@@ -159,6 +165,10 @@ function ViewerCore({
     }, []);
 
     const hasSize = size.width > 0 && size.height > 0;
+    const labels = useMemo(
+        () => mergeAccessibilityLabels(accessibilityLabels),
+        [accessibilityLabels],
+    );
 
     return (
         <View
@@ -173,6 +183,15 @@ function ViewerCore({
                     width={pageWidth}
                     padding={PAGE_PADDING}
                     onBlockLayout={pagination.onBlockLayout}
+                />
+            ) : null}
+            {hasSize && pagination.isMeasured ? (
+                <PageControl
+                    pageIndex={safeIndex}
+                    pageCount={pageCount}
+                    pagesPerView={pagesPerView}
+                    labels={labels}
+                    onFlip={handleFlip}
                 />
             ) : null}
             {hasSize && pagination.isMeasured && isSpread ? (
@@ -230,6 +249,7 @@ function SourcedDocumentViewer({
     dualPage,
     dualPageMinWidth,
     spreadGap,
+    accessibilityLabels,
 }: DocumentViewerProps & { source: DocumentSource }): React.JSX.Element {
     const { document, isLoading, error, reload } = useDocumentSource(source, {
         readUri,
@@ -252,6 +272,7 @@ function SourcedDocumentViewer({
                 dualPage={dualPage}
                 dualPageMinWidth={dualPageMinWidth}
                 spreadGap={spreadGap}
+                accessibilityLabels={accessibilityLabels}
             />
         );
     }
@@ -290,6 +311,7 @@ function DocumentViewer(props: DocumentViewerProps): React.JSX.Element {
             dualPage={props.dualPage}
             dualPageMinWidth={props.dualPageMinWidth}
             spreadGap={props.spreadGap}
+            accessibilityLabels={props.accessibilityLabels}
         />
     );
 }

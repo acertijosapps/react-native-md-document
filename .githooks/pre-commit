@@ -1,0 +1,36 @@
+#!/bin/sh
+# ─────────────────────────────────────────────────────────────────────────
+# Atenea · pre-commit · protects the permanent branches (Venteks versioning manual)
+#
+# Rule: "never develop directly on main". Development happens on temporary branches
+# (feat/ fix/ chore/ docs/) created from beta; hotfix/ from main. This hook blocks
+# DIRECT commits on main or beta.
+#
+# Escape for release promotion/merge:  ATENEA_ALLOW_PROTECTED=1 git commit ...
+# One-off full bypass:                  git commit --no-verify
+# ─────────────────────────────────────────────────────────────────────────
+
+[ "${ATENEA_ALLOW_PROTECTED:-}" = "1" ] && exit 0
+
+branch="$(git symbolic-ref --short HEAD 2>/dev/null || echo '')"
+
+case "$branch" in
+  main|beta)
+    cat >&2 <<EOF
+✕ Atenea · direct commit on '$branch' blocked.
+
+  Development happens on temporary branches:
+    feat/<feature> · fix/<bug> · chore/<task> · docs/<topic>   (from beta)
+    hotfix/<bug>                                                (from main)
+
+  Create the branch and switch to it:
+    git switch -c feat/my-change
+
+  Release promotion (merge into $branch):  ATENEA_ALLOW_PROTECTED=1 git commit ...
+  One-off bypass (not recommended):        git commit --no-verify
+EOF
+    exit 1
+    ;;
+esac
+
+exit 0

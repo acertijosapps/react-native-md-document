@@ -28,8 +28,8 @@ export interface DocTheme {
     fontFamily?: string;
     monoFontFamily?: string;
     /**
-     * Tokens de color específicos del documento/marca para el modo activo
-     * (p. ej. `accent`). Los provee el consumidor; la librería no los inventa.
+     * Document- or brand-specific color tokens for the active mode
+     * (e.g. `accent`). The consumer provides them; the library never invents any.
      */
     tokens?: Record<string, string>;
 }

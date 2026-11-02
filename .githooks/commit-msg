@@ -1,0 +1,53 @@
+#!/bin/sh
+# ─────────────────────────────────────────────────────────────────────────
+# Atenea · commit-msg · validates Conventional Commits (Venteks versioning manual)
+#
+# Git-native: runs for ANY commit (human or agent), with or without Claude.
+# Blocks the commit if the message does not comply. One-off escape: git commit --no-verify.
+#
+# Required format:  <type>(<optional scope>)(!): <imperative description>
+#   types: feat fix docs style refactor perf test build ci chore revert
+#   examples:  feat(auth): add session login
+#              fix: correct permission calculation
+#              feat(store)!: change the state shape (BREAKING CHANGE)
+# ─────────────────────────────────────────────────────────────────────────
+
+msg_file="$1"
+first_line="$(head -n 1 "$msg_file")"
+
+# Skip automatic merge/revert commits and fixup/squash.
+case "$first_line" in
+  "Merge "*|"Revert "*|"fixup!"*|"squash!"*) exit 0 ;;
+esac
+
+pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._/-]+\))?(!)?: .+'
+
+if printf '%s' "$first_line" | grep -Eq "$pattern"; then
+  # Soft warning: type ↔ branch prefix consistency (does not block).
+  # A feat/* branch is a feature container: it legitimately accumulates intermediate
+  # fix/docs/refactor/chore/test commits, so it is NOT warned about. Only fix/* and
+  # hotfix/* are checked, since they have a single purpose.
+  branch="$(git symbolic-ref --short HEAD 2>/dev/null || echo '')"
+  type="$(printf '%s' "$first_line" | sed -E 's/^([a-z]+).*/\1/')"
+  case "$branch" in
+    fix/*)     [ "$type" = "fix" ]  || printf '⚠️  Atenea: fix/* branch but commit "%s" (should it be fix?)\n' "$type" >&2 ;;
+    hotfix/*)  [ "$type" = "fix" ]  || printf '⚠️  Atenea: hotfix/* branch but commit "%s" (should it be fix?)\n' "$type" >&2 ;;
+  esac
+  exit 0
+fi
+
+cat >&2 <<'EOF'
+✕ Atenea · commit rejected: the message does not follow Conventional Commits.
+
+  Format:   <type>(<scope>)(!): <imperative description>
+  Types:    feat fix docs style refactor perf test build ci chore revert
+
+  Valid examples:
+    feat(auth): add session login
+    fix: correct permission calculation
+    feat(store)!: change the state shape
+
+  Team versioning manual (Atenea plugin, git-flow skill).
+  One-off bypass (not recommended):  git commit --no-verify
+EOF
+exit 1
