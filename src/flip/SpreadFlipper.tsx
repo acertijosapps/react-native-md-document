@@ -106,6 +106,8 @@ function SpreadFlipper({
             <Animated.View
                 style={[styles.layer, { left: x, width: pageWidth, height }, style]}
                 pointerEvents={interactive ? 'auto' : 'none'}
+                accessibilityElementsHidden={!interactive}
+                importantForAccessibility={interactive ? 'auto' : 'no-hide-descendants'}
             >
                 <Page
                     blocks={pageBlocks}

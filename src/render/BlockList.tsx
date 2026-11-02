@@ -148,6 +148,8 @@ function renderBlock(block: Block, ctx: RenderContext, key: string): React.JSX.E
             return (
                 <View
                     key={key}
+                    accessible
+                    accessibilityRole="header"
                     style={[spacing, blockBox(block.style, theme)]}
                 >
                     <InlineText
