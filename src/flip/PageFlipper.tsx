@@ -94,6 +94,8 @@ function PageFlipper({
                     <Animated.View
                         style={[styles.layer, nextStyle]}
                         pointerEvents="none"
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
                     >
                         <Page
                             blocks={next}
@@ -111,6 +113,8 @@ function PageFlipper({
                     <Animated.View
                         style={[styles.layer, prevStyle]}
                         pointerEvents="none"
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
                     >
                         <Page
                             blocks={prev}
