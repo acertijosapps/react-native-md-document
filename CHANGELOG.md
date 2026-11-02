@@ -7,9 +7,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [1.3.0] - 2026-11-01
+
+### Added
+
 - Screen reader support (VoiceOver and TalkBack): an invisible adjustable control announces the current page ("Page 3 of 12", or "Pages 3 and 4 of 12" in book mode) and turns pages with the increment/decrement actions. Headings are exposed with the `header` role.
 - `accessibilityLabels` prop on `DocumentViewer` to override the spoken strings, plus the `ViewerAccessibilityLabels` type and the `DEFAULT_ACCESSIBILITY_LABELS` export.
-- GitHub Actions CI for every PR and push to `beta` and `main`: typecheck, lint, formatting and tests.
+- GitHub Actions CI for every PR and push to `beta` and `main`: typecheck, lint, formatting and tests. It also reruns when a PR is retargeted.
 - Git hooks (`.githooks/`) that require Conventional Commits and block direct commits on `main` and `beta`, and a contributing guide with the branching model.
 
 ### Changed
