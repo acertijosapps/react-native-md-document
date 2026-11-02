@@ -1,6 +1,6 @@
 {
   "name": "@acertijosapps/react-native-md-document",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Immutable Markdown-as-document viewer for React Native: page-flip, zoom, text-to-speech and persistent highlights.",
   "homepage": "https://acertijosapps.com/librerias/react-native-md-document",
   "repository": {
@@ -26,6 +26,7 @@
     "react-native.config.js",
     "react-native-md-document.podspec",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "media"
   ],

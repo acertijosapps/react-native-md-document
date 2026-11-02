@@ -4,6 +4,7 @@ import { type LayoutChangeEvent, StyleSheet, useWindowDimensions, View } from 'r
 import {
     blockIndexForOffset,
     DUAL_PAGE_MIN_WIDTH,
+    keepWithNextFlags,
     MeasureLayer,
     PAGE_PADDING,
     pageForBlock,
@@ -96,7 +97,14 @@ function ViewerCore({
         screenShortSide: Math.min(screen.width, screen.height),
     });
     const contentHeight = size.height - PAGE_PADDING * 2;
-    const pagination = usePagination(document.blocks.length, contentHeight, document, pageWidth);
+    const keepWithNext = useMemo(() => keepWithNextFlags(document.blocks), [document]);
+    const pagination = usePagination(
+        document.blocks.length,
+        contentHeight,
+        document,
+        pageWidth,
+        keepWithNext,
+    );
 
     const onPageChangeRef = useRef(onPageChange);
     useEffect(() => {

@@ -112,7 +112,8 @@ export function Viewer() {
 ```
 
 `DocumentViewer` measures the content, paginates it to the viewport size and enables flip +
-zoom. `parse(source)` returns an immutable `MDDocument` with `plainText` (the text projection
+zoom. A heading is never left alone at the bottom of a page: it moves to the next page together
+with the block that follows it. `parse(source)` returns an immutable `MDDocument` with `plainText` (the text projection
 that highlights and TTS rely on).
 
 ## Document sources

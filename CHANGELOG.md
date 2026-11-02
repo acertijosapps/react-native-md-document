@@ -13,6 +13,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
+## [1.4.0] - 2026-11-02
+
+### Added
+
+- `keepWithNextFlags(blocks)` export and an optional fifth `keepWithNext` argument for `usePagination`, plus a third `keepWithNext` argument for `paginate`, to control which blocks stay with the next one.
+
+### Changed
+
+- `CHANGELOG.md` is now included in the published package, so it is visible on npm and unpkg.
+
+### Fixed
+
+- A heading is no longer left alone at the bottom of a page: it moves to the next page together with the block that follows it (consecutive headings travel together). A group taller than a page is still split block by block.
+
 ## [1.3.0] - 2026-11-01
 
 ### Added

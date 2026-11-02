@@ -5,7 +5,8 @@
   "scripts": {
     "start": "expo start",
     "ios": "expo run:ios",
-    "android": "expo run:android"
+    "android": "expo run:android",
+    "test:a11y": "sh uitests/run.sh"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.1.0",

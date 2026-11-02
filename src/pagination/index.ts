@@ -11,7 +11,7 @@ export {
 } from './offsets';
 export type { PageProps } from './Page';
 export { default as Page } from './Page';
-export { paginate } from './paginate';
+export { keepWithNextFlags, paginate } from './paginate';
 export type { PaginatedDocumentProps } from './PaginatedDocument';
 export { default as PaginatedDocument } from './PaginatedDocument';
 export type { SpreadInput, SpreadLayout } from './spread';

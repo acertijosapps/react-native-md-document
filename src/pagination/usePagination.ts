@@ -15,6 +15,7 @@ export function usePagination(
     pageHeight: number,
     resetKey?: unknown,
     pageWidth?: number,
+    keepWithNext?: readonly boolean[],
 ): Pagination {
     const heightsRef = useRef<number[]>([]);
     const [heights, setHeights] = useState<number[] | null>(null);
@@ -45,8 +46,8 @@ export function usePagination(
     );
 
     const pages = useMemo(
-        () => (heights && pageHeight > 0 ? paginate(heights, pageHeight) : NO_PAGES),
-        [heights, pageHeight],
+        () => (heights && pageHeight > 0 ? paginate(heights, pageHeight, keepWithNext) : NO_PAGES),
+        [heights, pageHeight, keepWithNext],
     );
 
     return { pages, isMeasured: heights !== null && pageHeight > 0, onBlockLayout };
