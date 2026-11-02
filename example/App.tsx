@@ -131,7 +131,7 @@ export default function App(): React.JSX.Element {
                 <SafeAreaView style={styles.root}>
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: chrome.title }]}>
-                            react-native-document
+                            react-native-md-document
                         </Text>
                         <Pressable
                             style={[styles.pill, { borderColor: chrome.border }]}

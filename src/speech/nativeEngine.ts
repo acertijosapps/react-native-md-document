@@ -12,7 +12,7 @@ interface NativeDocumentSpeech {
 }
 
 const LINK_ERROR =
-    'Módulo nativo DocumentSpeech no enlazado. Instala react-native-document como dependencia nativa (pod install / gradle) o usa createMockSpeechEngine.';
+    'The DocumentSpeech native module is not linked. Install @acertijosapps/react-native-md-document as a native dependency (pod install / gradle) or use createMockSpeechEngine.';
 
 export function createNativeSpeechEngine(): SpeechEngine {
     const native = NativeModules.DocumentSpeech as NativeDocumentSpeech | undefined;
