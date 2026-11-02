@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- `CHANGELOG.md` is now included in the published package, so it is visible on npm and unpkg.
+
 ### Fixed
 
 ### Removed
