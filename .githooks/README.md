@@ -1,28 +1,28 @@
-# .githooks — enforcement de versionado (Atenea)
+# .githooks — versioning enforcement
 
-Hooks git-native (POSIX, sin dependencias). Corren para **cualquier** commit, hecho por una
-persona o por un agente. Alinean el manual de versionado del equipo.
+Git-native hooks (POSIX, no dependencies). They run for **every** commit, whether made by a
+person or by an agent, and enforce the team's versioning rules.
 
-- **`commit-msg`** — bloquea el commit si el mensaje no sigue Conventional Commits
-  (`<tipo>(<alcance>)(!): descripción`). Avisa (no bloquea) si el tipo no cuadra con el prefijo
-  de la rama.
-- **`pre-commit`** — bloquea commits directos sobre `main` o `beta` (el desarrollo va en ramas
-  temporales). Escape para promoción de release: `ATENEA_ALLOW_PROTECTED=1 git commit ...`.
+- **`commit-msg`** — rejects the commit if the message is not a Conventional Commit
+  (`<type>(<scope>)(!): description`). Warns (does not block) when the type does not match the
+  branch prefix.
+- **`pre-commit`** — blocks direct commits on `main` or `beta` (development happens on
+  temporary branches). Escape for release promotion: `ATENEA_ALLOW_PROTECTED=1 git commit ...`.
 
-## Activación
+## Activation
 
-`core.hooksPath` es config local por clon (no se versiona), así que cada clon la activa una vez.
-El proyecto lo automatiza con un script `prepare` en `package.json`:
+`core.hooksPath` is a per-clone local setting (it is not versioned), so each clone enables it
+once. The project automates it with a `prepare` script in `package.json`:
 
 ```json
 "scripts": { "prepare": "git config core.hooksPath .githooks || true" }
 ```
 
-Así, en cada `yarn install` queda cableado. Manual, si hiciera falta:
+That way every `npm install` wires it up. Manually, if needed:
 
 ```bash
 git config core.hooksPath .githooks
 chmod +x .githooks/*
 ```
 
-Bypass puntual de un hook (no recomendado): `git commit --no-verify`.
+One-off bypass of a hook (not recommended): `git commit --no-verify`.

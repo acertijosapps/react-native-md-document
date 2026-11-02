@@ -1,13 +1,13 @@
 #!/bin/sh
 # ─────────────────────────────────────────────────────────────────────────
-# Atenea · pre-commit · protege ramas permanentes (manual de versionado Venteks)
+# Atenea · pre-commit · protects the permanent branches (Venteks versioning manual)
 #
-# Regla del md: "nunca desarrolles directo sobre main". El desarrollo va en ramas
-# temporales (feat/ fix/ chore/) desde beta; hotfix/ desde main. Este hook
-# bloquea commits DIRECTOS sobre main o beta.
+# Rule: "never develop directly on main". Development happens on temporary branches
+# (feat/ fix/ chore/ docs/) created from beta; hotfix/ from main. This hook blocks
+# DIRECT commits on main or beta.
 #
-# Escape para promoción/merge de release:  ATENEA_ALLOW_PROTECTED=1 git commit ...
-# Bypass total puntual:                     git commit --no-verify
+# Escape for release promotion/merge:  ATENEA_ALLOW_PROTECTED=1 git commit ...
+# One-off full bypass:                  git commit --no-verify
 # ─────────────────────────────────────────────────────────────────────────
 
 [ "${ATENEA_ALLOW_PROTECTED:-}" = "1" ] && exit 0
@@ -17,17 +17,17 @@ branch="$(git symbolic-ref --short HEAD 2>/dev/null || echo '')"
 case "$branch" in
   main|beta)
     cat >&2 <<EOF
-✕ Atenea · commit directo sobre '$branch' bloqueado.
+✕ Atenea · direct commit on '$branch' blocked.
 
-  El desarrollo va en ramas temporales:
-    feat/<func> · fix/<bug> · chore/<ajuste>   (desde beta)
-    hotfix/<bug>                                  (desde main)
+  Development happens on temporary branches:
+    feat/<feature> · fix/<bug> · chore/<task> · docs/<topic>   (from beta)
+    hotfix/<bug>                                                (from main)
 
-  Crea la rama y muévete a ella:
-    git switch -c feat/mi-cambio
+  Create the branch and switch to it:
+    git switch -c feat/my-change
 
-  Promoción de release (merge a $branch):  ATENEA_ALLOW_PROTECTED=1 git commit ...
-  Bypass puntual (no recomendado):         git commit --no-verify
+  Release promotion (merge into $branch):  ATENEA_ALLOW_PROTECTED=1 git commit ...
+  One-off bypass (not recommended):        git commit --no-verify
 EOF
     exit 1
     ;;

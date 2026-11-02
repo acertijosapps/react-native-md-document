@@ -1,64 +1,69 @@
 # Changelog
 
-Todas las notas relevantes de este proyecto se documentan aquí.
-Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/); versionado [SemVer](https://semver.org/lang/es/).
+All notable changes to this project are documented in this file.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Sin liberar]
+## [Unreleased]
 
-### Añadido
+### Added
 
-- CI en GitHub Actions para cada PR y push a `beta` y `main`: typecheck, lint, formato y tests.
-- Hooks de git (`.githooks/`) que exigen Conventional Commits y bloquean commits directos sobre `main` y `beta`, y guía de contribución con el flujo de ramas.
+- Screen reader support (VoiceOver and TalkBack): an invisible adjustable control announces the current page ("Page 3 of 12", or "Pages 3 and 4 of 12" in book mode) and turns pages with the increment/decrement actions. Headings are exposed with the `header` role.
+- `accessibilityLabels` prop on `DocumentViewer` to override the spoken strings, plus the `ViewerAccessibilityLabels` type and the `DEFAULT_ACCESSIBILITY_LABELS` export.
+- GitHub Actions CI for every PR and push to `beta` and `main`: typecheck, lint, formatting and tests.
+- Git hooks (`.githooks/`) that require Conventional Commits and block direct commits on `main` and `beta`, and a contributing guide with the branching model.
 
-### Cambiado
+### Changed
 
-- El repositorio se mudó de GitLab a GitHub (`acertijosapps/react-native-md-document`): `repository` y `bugs` de `package.json` y `source` del podspec, que ahora usa el tag `vX.Y.Z`.
+- Peer dependency ranges now match what the library supports: `react-native` ≥ 0.76, `react` ≥ 18.3.1, `react-native-reanimated` ≥ 3.16 and < 4, `react-native-gesture-handler` ≥ 2.20 and < 3. Reanimated 4 and Gesture Handler 3 are not supported yet.
+- The repository moved from GitLab to GitHub (`acertijosapps/react-native-md-document`): `repository` and `bugs` in `package.json` and `source` in the podspec, which now uses the `vX.Y.Z` tag.
+- The public documentation (README, changelog, contributing guide) is now in English.
 
-### Corregido
+### Fixed
 
-### Eliminado
+- The pages stacked behind the current one for the flip animation are hidden from the accessibility tree, so screen readers no longer read them.
+- The error thrown when the native speech module is not linked now names the published package (`@acertijosapps/react-native-md-document`) instead of the old `react-native-document`, and is in English.
 
 ## [1.2.0] - 2026-10-25
 
-### Añadido
+### Added
 
-- Modo libro: en tablets y plegables en horizontal, el documento se muestra en dos páginas enfrentadas con volteo de página. Props `dualPage` (activo por defecto), `dualPageMinWidth` y `spreadGap` (separación para la bisagra de un plegable).
-- `onPageChange` recibe un cuarto argumento, `pagesPerView` (1 o 2).
-- Secciones «Modo libro» y «Plegables» en el README, con capturas.
+- Book mode: on tablets and foldables in landscape, the document is shown as two facing pages with page-turning. Props `dualPage` (on by default), `dualPageMinWidth` and `spreadGap` (space for a foldable's hinge).
+- `onPageChange` receives a fourth argument, `pagesPerView` (1 or 2).
+- "Book mode" and "Foldables" sections in the README, with screenshots.
 
-### Corregido
+### Fixed
 
-- Paginación en tablets: ya no queda atascada ni deja páginas en blanco por eventos de layout tardíos.
-- El modo libro solo se activa en pantallas de tablet o plegable (lado corto de la ventana de al menos 600 dp); un teléfono en horizontal sigue mostrando una página.
+- Pagination on tablets: it no longer gets stuck or leaves blank pages because of late layout events.
+- Book mode only turns on for tablet- or foldable-sized screens (window short side of at least 600 dp); a phone in landscape still shows a single page.
 
 ## [1.1.2] - 2026-10-13
 
-### Cambiado
+### Changed
 
-- `author`, correo y `homepage` de AcertijosApps en `package.json` y el podspec.
+- `author`, email and `homepage` of AcertijosApps in `package.json` and the podspec.
 
 ## [1.1.1] - 2026-09-19
 
-### Añadido
+### Added
 
-- `homepage`, `repository` y `bugs` en `package.json`, y podspec alineado.
+- `homepage`, `repository` and `bugs` in `package.json`, and an aligned podspec.
 
 ## [1.1.0] - 2026-09-19
 
-### Añadido
+### Added
 
-- Carga del documento por `source` con estados de carga y error (`onLoad*`, `renderLoading`, `renderError`).
+- Loading the document through `source`, with loading and error states (`onLoad*`, `renderLoading`, `renderError`).
 
 ## [1.0.1] - 2026-09-19
 
-### Cambiado
+### Changed
 
-- README con el nombre del paquete publicado y las imágenes por URL absoluta, para que rendericen en npm; `media/` se incluye en el paquete.
-- Podspec renombrado a `react-native-md-document.podspec`.
-- Keywords `android`, `ios` y `zoom`.
+- README with the published package name and absolute image URLs, so they render on npm; `media/` is included in the package.
+- Podspec renamed to `react-native-md-document.podspec`.
+- Keywords `android`, `ios` and `zoom`.
 
 ## [1.0.0] - 2026-09-19
 
-### Añadido
+### Added
 
-- Primera versión pública: visor de Markdown como PDF con volteo de página, zoom, resaltados persistentes, lectura en voz alta (TTS) y tokens de color claro/oscuro, con almacenamiento, fuente y voz inyectables.
+- First public release: Markdown-as-PDF viewer with page-turning, zoom, persistent highlights, text-to-speech (TTS) and light/dark color tokens, with injectable storage, source and speech engine.

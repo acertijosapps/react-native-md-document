@@ -1,82 +1,82 @@
-# Contribuir
+# Contributing
 
-Las contribuciones son bienvenidas. Mantén los cambios pequeños, enfocados y trazables.
+Contributions are welcome. Keep changes small, focused and traceable.
 
-## Flujo de desarrollo
+## Development workflow
 
-Usa la versión de Node de [`.nvmrc`](./.nvmrc) e instala las dependencias desde la raíz:
+Use the Node.js version in [`.nvmrc`](./.nvmrc) and install the dependencies from the root:
 
 ```sh
 npm install
 ```
 
-`npm install` también cablea los hooks de git del repositorio (`core.hooksPath` → `.githooks/`).
+`npm install` also wires the repository git hooks (`core.hooksPath` → `.githooks/`).
 
-El proyecto de ejemplo vive en `example/` (Expo) y consume el código de `src/` directamente, así que los cambios en TypeScript se ven con recarga en caliente.
+The example app lives in `example/` (Expo) and consumes the code in `src/` directly, so TypeScript changes hot-reload there.
 
-### Comandos
+### Commands
 
 ```sh
-npm run typecheck     # tipos con TypeScript
-npm run lint          # ESLint
-npm run format        # Prettier (escribe)
-npm run format:check  # Prettier (solo verifica)
-npm test              # pruebas unitarias (node:test)
+npm run typecheck     # type-check with TypeScript
+npm run lint          # lint with ESLint
+npm run format        # format with Prettier (writes)
+npm run format:check  # check formatting with Prettier
+npm test              # run the unit tests (node:test)
 ```
 
-## Modelo de ramas
+## Branching model
 
-Dos ramas permanentes, ambas protegidas:
+Two permanent branches, both protected:
 
-- **`main`**: producción. Sin pushes directos; los cambios entran solo con un Pull Request aprobado.
-- **`beta`**: candidata a release.
+- **`main`**: production. No direct pushes; changes land only through an approved Pull Request.
+- **`beta`**: release candidate.
 
-Ramas temporales, siempre creadas desde `beta`, en kebab-case:
+Temporary branches, always created from `beta`, in kebab-case:
 
-- `feat/<nombre>` · `fix/<nombre>` · `chore/<nombre>` → Pull Request **a `beta`**, se borran al hacer merge.
-- `hotfix/<nombre>` es la única excepción: sale de `main`, va por PR a `main` y luego se integra de vuelta en `beta`.
+- `feat/<name>` · `fix/<name>` · `chore/<name>` · `docs/<name>` → Pull Request **into `beta`**, deleted after merge.
+- `hotfix/<name>` is the only exception: created from `main`, PR into `main`, then back-merged into `beta`.
 
-Una rama = un cambio enfocado.
+One branch = one focused change.
 
 ## Commits
 
-[Conventional Commits](https://www.conventionalcommits.org/es/):
+Write commit messages and Pull Requests in English, following [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-<tipo>(<alcance opcional>)(!): <descripción en imperativo>
+<type>(<optional scope>)(!): <imperative description>
 ```
 
-Tipos: `feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `revert`.
+Types: `feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `revert`.
 
-Correspondencia con [SemVer](https://semver.org/lang/es/): `feat` → MINOR, `fix` → PATCH, cambio incompatible (`feat!` o `BREAKING CHANGE:`) → MAJOR.
+[SemVer](https://semver.org/) mapping: `feat` → MINOR, `fix` → PATCH, breaking (`feat!` or `BREAKING CHANGE:`) → MAJOR.
 
-Los hooks de [`.githooks/`](./.githooks) corren en cada commit:
+The git hooks in [`.githooks/`](./.githooks) run for every commit:
 
-- `commit-msg` rechaza mensajes que no sean Conventional Commits.
-- `pre-commit` bloquea commits directos sobre `main` y `beta`.
+- `commit-msg` rejects messages that are not Conventional Commits.
+- `pre-commit` blocks direct commits on `main` and `beta`.
 
-Bypass puntual (no recomendado): `git commit --no-verify`.
+One-off bypass (not recommended): `git commit --no-verify`.
 
 ## Changelog
 
-Todo cambio que afecte el comportamiento actualiza [`CHANGELOG.md`](./CHANGELOG.md) ([Keep a Changelog](https://keepachangelog.com/es-ES/)): agrega la entrada bajo `## [Sin liberar]` en la categoría correcta (Añadido · Cambiado · Corregido · Eliminado).
+Any change that affects behavior updates [`CHANGELOG.md`](./CHANGELOG.md) ([Keep a Changelog](https://keepachangelog.com/en/1.1.0/)): add the entry under `## [Unreleased]` in the right category (Added · Changed · Fixed · Removed).
 
 ## Pull Requests
 
-Al abrir un PR:
+When opening a PR:
 
-- Apunta a `beta` (o a `main` solo en `hotfix`).
-- Mantenlo pequeño y centrado en un cambio.
-- Asigna al menos un revisor; el merge requiere su aprobación.
-- Los gates deben estar en verde: `npm run typecheck`, `npm run lint`, `npm run format:check` y `npm test`. El CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) los corre en cada PR hacia `beta` o `main`.
-- Incluye la entrada de `CHANGELOG.md`.
+- Target `beta` (or `main` only for `hotfix`).
+- Keep it small and focused on one change.
+- Assign at least one reviewer; merge requires their approval.
+- Gates must be green: `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm test`. CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) runs them on every PR to `beta` or `main`.
+- Include the `CHANGELOG.md` entry.
 
-## Release (`beta` → `main`)
+## Releasing (`beta` → `main`)
 
-1. Confirma que los gates están en verde en `beta`.
-2. Decide el incremento SemVer según los commits desde el último tag.
-3. Actualiza `version` en `package.json`.
-4. Renombra la sección `## [Sin liberar]` del changelog a `## [X.Y.Z] - AAAA-MM-DD` y abre una nueva vacía.
-5. Abre el PR `beta` → `main` y haz merge.
-6. Crea el tag `vX.Y.Z` sobre `main` y súbelo (`git push origin vX.Y.Z`).
-7. Publica desde la raíz del repo con `npm publish` (el README y el `package.json` quedan congelados por versión).
+1. Confirm the gates are green on `beta`.
+2. Decide the SemVer bump from the commits since the last tag.
+3. Update `version` in `package.json`.
+4. Rename the `## [Unreleased]` section of the changelog to `## [X.Y.Z] - YYYY-MM-DD` and open a fresh empty one.
+5. Open the `beta` → `main` PR and merge it.
+6. Tag `vX.Y.Z` on `main` and push it (`git push origin vX.Y.Z`).
+7. Publish from the repository root with `npm publish` (the README and `package.json` are frozen per version).
