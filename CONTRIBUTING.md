@@ -67,7 +67,7 @@ When opening a PR:
 
 - Target `beta` (or `main` only for `hotfix`).
 - Keep it small and focused on one change.
-- Assign at least one reviewer; merge requires their approval.
+- Request a review when there is another maintainer. Approvals are not enforced while the repository has a single maintainer; the PR and a green CI check are always required.
 - Gates must be green: `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm test`. CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) runs them on every PR to `beta` or `main`.
 - Include the `CHANGELOG.md` entry.
 
