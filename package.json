@@ -26,6 +26,7 @@
     "react-native.config.js",
     "react-native-md-document.podspec",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "media"
   ],
